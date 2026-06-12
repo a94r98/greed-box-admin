@@ -200,9 +200,10 @@ export default function App() {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("admin_user") || "null"));
   const [activeTab, setActiveTab] = useState("dashboard");
   
-  // Auth Form
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Auth Form (Default credentials loaded, option to remember)
+  const [email, setEmail] = useState(localStorage.getItem("remembered_admin_email") || "admin@greedboxes.com");
+  const [password, setPassword] = useState(localStorage.getItem("remembered_admin_password") || "adminpassword");
+  const [rememberMe, setRememberMe] = useState(localStorage.getItem("remember_admin") === "true");
   const [authError, setAuthError] = useState("");
 
   // Live Stats & Sockets state
@@ -365,6 +366,17 @@ export default function App() {
 
       localStorage.setItem("admin_token", data.token);
       localStorage.setItem("admin_user", JSON.stringify(data.user));
+      
+      if (rememberMe) {
+        localStorage.setItem("remembered_admin_email", email);
+        localStorage.setItem("remembered_admin_password", password);
+        localStorage.setItem("remember_admin", "true");
+      } else {
+        localStorage.removeItem("remembered_admin_email");
+        localStorage.removeItem("remembered_admin_password");
+        localStorage.removeItem("remember_admin");
+      }
+
       setToken(data.token);
       setUser(data.user);
     } catch (err) {
@@ -594,7 +606,27 @@ export default function App() {
             <label>{t.password}</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
-          <button type="submit" className="btn btn-primary" style={{ width: "100%", marginTop: "1rem" }}>{t.loginBtn}</button>
+          
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.75rem", marginBottom: "0.5rem" }}>
+            <input 
+              type="checkbox" 
+              id="rememberMe" 
+              checked={rememberMe} 
+              onChange={e => setRememberMe(e.target.checked)} 
+              style={{ cursor: "pointer", width: "16px", height: "16px" }}
+            />
+            <label htmlFor="rememberMe" style={{ cursor: "pointer", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+              {lang === "ar" ? "تذكرني في هذا المتصفح" : "Remember Me"}
+            </label>
+          </div>
+
+          <div style={{ padding: "0.75rem", background: "rgba(255,255,255,0.05)", borderRadius: "6px", fontSize: "0.8rem", color: "var(--text-secondary)", marginBottom: "1rem", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <strong>🔑 {lang === "ar" ? "بيانات الدخول الافتراضية للوحة:" : "Default Admin Credentials:"}</strong>
+            <div style={{ marginTop: "0.25rem" }}>Email: <code>admin@greedboxes.com</code></div>
+            <div>Password: <code>adminpassword</code></div>
+          </div>
+
+          <button type="submit" className="btn btn-primary" style={{ width: "100%" }}>{t.loginBtn}</button>
         </form>
       </div>
     );
