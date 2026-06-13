@@ -751,6 +751,17 @@ export default function App() {
     }
   };
 
+  const handleDeleteTask = async (taskId) => {
+    if (!window.confirm(lang === "ar" ? "هل أنت متأكد من حذف هذه المهمة نهائياً؟" : "Are you sure you want to delete this task permanently?")) return;
+    try {
+      await apiCall(`/admin/tasks/${taskId}`, "DELETE");
+      alert(lang === "ar" ? "تم حذف المهمة بنجاح" : "Task deleted successfully");
+      fetchTasks();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const handleRunSimulation = async (e) => {
     e.preventDefault();
     setSimLoading(true);
@@ -1861,14 +1872,17 @@ export default function App() {
                         </td>
                         <td>
                           <div style={{ display: "flex", gap: "0.4rem" }}>
-                            <button className="btn" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", background: "rgba(255,255,255,0.05)" }} onClick={() => handleEditTask(tData)}>
+                            <button className="btn" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", background: "rgba(56, 189, 248, 0.15)", color: "#38bdf8" }} onClick={() => handleEditTask(tData)}>
                               {lang === "ar" ? "تعديل" : "Edit"}
                             </button>
-                            <button className="btn btn-danger" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem" }} onClick={() => handleToggleTask(tData)}>
-                              {tData.isEnabled ? "Disable" : "Enable"}
+                            <button className="btn" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", background: "rgba(255,255,255,0.05)" }} onClick={() => handleToggleTask(tData)}>
+                              {tData.isEnabled ? (lang === "ar" ? "تعطيل" : "Disable") : (lang === "ar" ? "تفعيل" : "Enable")}
                             </button>
                             <button className="btn btn-warning" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", background: "#f59e0b", color: "black" }} onClick={() => handleResetTask(tData.id)}>
                               {lang === "ar" ? "إعادة" : "Reset"}
+                            </button>
+                            <button className="btn btn-danger" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", background: "#dc2626", color: "white" }} onClick={() => handleDeleteTask(tData.id)}>
+                              {lang === "ar" ? "حذف" : "Delete"}
                             </button>
                           </div>
                         </td>
