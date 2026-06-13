@@ -199,6 +199,7 @@ export default function App() {
   const [token, setToken] = useState(localStorage.getItem("admin_token") || "");
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("admin_user") || "null"));
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   
   // Auth Form (Default credentials loaded, option to remember)
   const [email, setEmail] = useState(localStorage.getItem("remembered_admin_email") || "admin@greedboxes.com");
@@ -870,9 +871,14 @@ export default function App() {
   }
 
   return (
-    <div className="admin-app" dir={direction} style={{ paddingLeft: lang === "en" ? "260px" : "0", paddingRight: lang === "ar" ? "260px" : "0" }}>
+    <div className="admin-app" dir={direction}>
+      {/* Sidebar Backdrop Overlay on Mobile */}
+      {showMobileSidebar && (
+        <div className="sidebar-backdrop" onClick={() => setShowMobileSidebar(false)}></div>
+      )}
+
       {/* Sidebar Nav */}
-      <div className="sidebar" style={{ left: lang === "en" ? "0" : "auto", right: lang === "ar" ? "0" : "auto", borderRight: lang === "en" ? "1px solid var(--glass-border)" : "none", borderLeft: lang === "ar" ? "1px solid var(--glass-border)" : "none" }}>
+      <div className={`sidebar ${showMobileSidebar ? "open" : ""}`}>
         <div className="brand" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h1>{t.brand}</h1>
           <button type="button" className="btn" style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }} onClick={handleLanguageToggle}>
@@ -880,21 +886,31 @@ export default function App() {
           </button>
         </div>
         <ul className="nav-links">
-          <li className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => setActiveTab("dashboard")}>{t.dashboard}</li>
-          <li className={`nav-item ${activeTab === "play" ? "active" : ""}`} onClick={() => { setActiveTab("play"); fetchMyWallet(); }}>{t.playGame}</li>
-          <li className={`nav-item ${activeTab === "users" ? "active" : ""}`} onClick={() => setActiveTab("users")}>{t.users}</li>
-          <li className={`nav-item ${activeTab === "deposits" ? "active" : ""}`} onClick={() => setActiveTab("deposits")}>{t.deposits}</li>
-          <li className={`nav-item ${activeTab === "withdrawals" ? "active" : ""}`} onClick={() => setActiveTab("withdrawals")}>{t.withdrawals}</li>
-          <li className={`nav-item ${activeTab === "config" ? "active" : ""}`} onClick={() => setActiveTab("config")}>{t.config}</li>
-          <li className={`nav-item ${activeTab === "tasks" ? "active" : ""}`} onClick={() => setActiveTab("tasks")}>{t.tasks}</li>
-          <li className={`nav-item ${activeTab === "pool" ? "active" : ""}`} onClick={() => setActiveTab("pool")}>{t.pool}</li>
-          <li className={`nav-item ${activeTab === "simulation" ? "active" : ""}`} onClick={() => setActiveTab("simulation")}>{t.simulation}</li>
-          <li className="nav-item logout-btn" onClick={handleLogout}>{t.logout}</li>
+          <li className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => { setActiveTab("dashboard"); setShowMobileSidebar(false); }}>{t.dashboard}</li>
+          <li className={`nav-item ${activeTab === "play" ? "active" : ""}`} onClick={() => { setActiveTab("play"); fetchMyWallet(); setShowMobileSidebar(false); }}>{t.playGame}</li>
+          <li className={`nav-item ${activeTab === "users" ? "active" : ""}`} onClick={() => { setActiveTab("users"); setShowMobileSidebar(false); }}>{t.users}</li>
+          <li className={`nav-item ${activeTab === "deposits" ? "active" : ""}`} onClick={() => { setActiveTab("deposits"); setShowMobileSidebar(false); }}>{t.deposits}</li>
+          <li className={`nav-item ${activeTab === "withdrawals" ? "active" : ""}`} onClick={() => { setActiveTab("withdrawals"); setShowMobileSidebar(false); }}>{t.withdrawals}</li>
+          <li className={`nav-item ${activeTab === "config" ? "active" : ""}`} onClick={() => { setActiveTab("config"); setShowMobileSidebar(false); }}>{t.config}</li>
+          <li className={`nav-item ${activeTab === "tasks" ? "active" : ""}`} onClick={() => { setActiveTab("tasks"); setShowMobileSidebar(false); }}>{t.tasks}</li>
+          <li className={`nav-item ${activeTab === "pool" ? "active" : ""}`} onClick={() => { setActiveTab("pool"); setShowMobileSidebar(false); }}>{t.pool}</li>
+          <li className={`nav-item ${activeTab === "simulation" ? "active" : ""}`} onClick={() => { setActiveTab("simulation"); setShowMobileSidebar(false); }}>{t.simulation}</li>
+          <li className="nav-item logout-btn" onClick={() => { handleLogout(); setShowMobileSidebar(false); }}>{t.logout}</li>
         </ul>
       </div>
 
       {/* Main Content Area */}
       <div className="main-content">
+        {/* Mobile top navigation header */}
+        <div className="mobile-header">
+          <button className="menu-toggle-btn" onClick={() => setShowMobileSidebar(true)}>
+            ☰
+          </button>
+          <h2>{t.brand}</h2>
+          <button type="button" className="btn" style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }} onClick={handleLanguageToggle}>
+            {lang === "ar" ? "EN" : "AR"}
+          </button>
+        </div>
         {activeTab === "dashboard" && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
@@ -1849,7 +1865,7 @@ export default function App() {
                             {tData.type}
                           </span>
                         </td>
-                        <td>
+                        <td className="task-title-cell">
                           <strong>{tData.title}</strong>
                           <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginTop: "2px" }}>{tData.description}</div>
                         </td>

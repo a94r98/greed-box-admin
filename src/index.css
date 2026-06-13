@@ -57,20 +57,23 @@ body {
   width: 260px;
   background: rgba(8, 7, 16, 0.85);
   backdrop-filter: blur(15px);
-  border-right: 1px solid var(--glass-border);
+  border-inline-end: 1px solid var(--glass-border);
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   position: fixed;
   height: 100vh;
   z-index: 100;
+  inset-inline-start: 0;
+  transition: var(--transition-smooth);
 }
 
 .main-content {
   flex: 1;
-  margin-left: 260px;
+  margin-inline-start: 260px;
   padding: 2.5rem;
   min-height: 100vh;
+  transition: var(--transition-smooth);
 }
 
 /* Typography styling */
@@ -405,4 +408,95 @@ input:focus, select:focus, textarea:focus {
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+/* Table layout enhancements */
+th, td {
+  white-space: nowrap;
+}
+
+td.task-title-cell {
+  white-space: normal;
+  min-width: 200px;
+}
+
+/* Mobile layouts */
+.mobile-header {
+  display: none;
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 99;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    inset-inline-start: -260px;
+  }
+
+  .sidebar.open {
+    inset-inline-start: 0;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+  }
+
+  .main-content {
+    margin-inline-start: 0;
+    padding: 1.5rem 1rem;
+  }
+
+  .mobile-header {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 1.5rem;
+  }
+
+  .mobile-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #ff8c00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .menu-toggle-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 1.25rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-main);
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .boxes-container {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  th, td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 1.25rem 1rem;
+  }
 }
