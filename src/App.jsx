@@ -37,8 +37,8 @@ const TRANSLATIONS = {
     userId: "معرف المستخدم",
     username: "اسم المستخدم",
     role: "الصلاحية",
-    freeCoins: "عملات مجانية",
-    cashCoins: "عملات شحن",
+    freeCoins: "الماسات",
+    cashCoins: "الكونزات",
     stats: "الإحصائيات (جولات / فوز)",
     actions: "الإجراءات",
     editBalance: "تعديل الرصيد",
@@ -56,8 +56,8 @@ const TRANSLATIONS = {
     revealDuration: "مدة العرض (ثانية)",
     historySize: "عدد نتائج شريط الجولات",
     toggles: "تفعيل وتعطيل الأنظمة",
-    freeEnabled: "جولات العملات المجانية",
-    cashEnabled: "جولات عملات الشحن",
+    freeEnabled: "جولات الماسات",
+    cashEnabled: "جولات الكونزات",
     maintenance: "وضع الصيانة",
     normalOps: "عمل طبيعي",
     maintenanceActive: "وضع الصيانة نشط",
@@ -95,7 +95,7 @@ const TRANSLATIONS = {
     betSuccess: "تم تسجيل الرهان بنجاح!",
     recentResults: "شريط آخر الجولات:",
     myRoundsHistory: "سجل مراهناتي الحالية",
-    betFree: "رهان عملة مجانية",
+    betFree: "رهان الماسات",
     betCash: "رهان عملة شحن"
   },
   en: {
@@ -2092,8 +2092,8 @@ export default function App() {
               <div className="form-group" style={{ margin: 0 }}>
                 <label>{lang === "ar" ? "العملة" : "Currency"}</label>
                 <select value={adjustType} onChange={e => setAdjustType(e.target.value)}>
-                  <option value="FREE">{lang === "ar" ? "عملات مجانية (Free)" : "Free Coins"}</option>
-                  <option value="CASH">{lang === "ar" ? "عملات شحن (Cash)" : "Cash Coins"}</option>
+                  <option value="FREE">{lang === "ar" ? "الماسات (Free)" : "Free Coins"}</option>
+                  <option value="CASH">{lang === "ar" ? "الكونزات (Cash)" : "Cash Coins"}</option>
                 </select>
               </div>
             </div>
