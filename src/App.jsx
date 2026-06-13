@@ -223,6 +223,7 @@ export default function App() {
 
   // Modals & Action forms
   const [showOverrideModal, setShowOverrideModal] = useState(false);
+  const [showAdjustModal, setShowAdjustModal] = useState(false);
   const [overrideBox, setOverrideBox] = useState(0);
   const [overrideReason, setOverrideReason] = useState("");
   const [overrideError, setOverrideError] = useState("");
