@@ -229,14 +229,42 @@ export default function App() {
 
   const [showAdjustModal, setShowAdjustModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [adjustFree, setAdjustFree] = useState("");
-  const [adjustCash, setAdjustCash] = useState("");
+  const [adjustOp, setAdjustOp] = useState("ADD"); // ADD, SUBTRACT
+  const [adjustType, setAdjustType] = useState("FREE"); // FREE, CASH
+  const [adjustAmount, setAdjustAmount] = useState("");
   const [adjustReason, setAdjustReason] = useState("");
 
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectType, setRejectType] = useState(""); 
   const [rejectId, setRejectId] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
+
+  // Detailed User Overview & Logs state
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [detailsTab, setDetailsTab] = useState("info"); // info, activity, admin
+  const [userLogs, setUserLogs] = useState({ activityLogs: [], adminActions: [] });
+  const [logsLoading, setLogsLoading] = useState(false);
+
+  // Triple confirmation delete account state
+  const [deleteConfirmStep, setDeleteConfirmStep] = useState(0);
+  const [deleteTextVal, setDeleteTextVal] = useState("");
+
+  // Filters for User Management
+  const [filterRole, setFilterRole] = useState("ALL");
+  const [filterStatus, setFilterStatus] = useState("ALL");
+  const [filterRegDate, setFilterRegDate] = useState("");
+
+  // Edit User Details state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editNickname, setEditNickname] = useState("");
+  const [editAge, setEditAge] = useState("");
+  const [editGender, setEditGender] = useState("");
+  const [editPassword, setEditPassword] = useState("");
+  const [editPublicId, setEditPublicId] = useState("");
+  const [editIsBanned, setEditIsBanned] = useState(false);
+  const [editBanDays, setEditBanDays] = useState("");
+  const [editBanReason, setEditBanReason] = useState("");
+  const [removeAvatar, setRemoveAvatar] = useState(false);
 
   // Create Task Form
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -449,19 +477,127 @@ export default function App() {
   };
 
   const handleAdjustBalance = async () => {
+    if (!adjustAmount || parseFloat(adjustAmount) <= 0) {
+      alert("يرجى إدخال مبلغ صحيح.");
+      return;
+    }
+    if (!adjustReason) {
+      alert("يرجى تحديد سبب العملية.");
+      return;
+    }
+
+    const amount = parseFloat(adjustAmount);
+    const delta = adjustOp === "ADD" ? amount : -amount;
+
     try {
-      await apiCall(`/admin/users/${selectedUser.id}/balance`, "PUT", {
-        freeAmount: adjustFree !== "" ? parseFloat(adjustFree) : undefined,
-        cashAmount: adjustCash !== "" ? parseFloat(adjustCash) : undefined,
+      const res = await apiCall(`/admin/users/${selectedUser.id}/balance`, "PUT", {
+        freeDelta: adjustType === "FREE" ? delta : undefined,
+        cashDelta: adjustType === "CASH" ? delta : undefined,
         reason: adjustReason
       });
       setShowAdjustModal(false);
-      setAdjustFree("");
-      setAdjustCash("");
+      setAdjustAmount("");
       setAdjustReason("");
+      
+      // Update selectedUser if open in details with the exact wallet returned by the server
+      if (showDetailsModal && selectedUser) {
+        setSelectedUser(prev => ({
+          ...prev,
+          wallet: res.wallet
+        }));
+      }
+
       fetchUsers();
+      alert("تمت إدارة العملات بنجاح!");
     } catch (err) {
       alert(err.message);
+    }
+  };
+
+  const handleEditUser = async (e) => {
+    e.preventDefault();
+    try {
+      const updated = await apiCall(`/admin/users/${selectedUser.id}`, "PUT", {
+        displayNickname: editNickname || undefined,
+        age: editAge ? parseInt(editAge) : undefined,
+        gender: editGender || undefined,
+        password: editPassword || undefined,
+        publicId: editPublicId || undefined,
+        isBanned: editIsBanned,
+        banDays: editIsBanned ? (editBanDays || undefined) : undefined,
+        banReason: editIsBanned ? editBanReason : undefined,
+        removeAvatar
+      });
+      setShowEditModal(false);
+      
+      if (showDetailsModal) {
+        setSelectedUser(updated.user);
+      }
+
+      fetchUsers();
+      alert("تم تحديث بيانات الحساب بنجاح!");
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleBanDevice = async () => {
+    if (!confirm("هل أنت متأكد من حظر جهاز هذا الحساب نهائياً؟ لن يتمكن من إنشاء أو استخدام أي حساب ضيف أو دائم من هذا الهاتف.")) return;
+    try {
+      const reason = prompt("أدخل سبب حظر الجهاز:") || "مخالفة الشروط العامة";
+      await apiCall(`/admin/users/${selectedUser.id}/ban-device`, "POST", { reason });
+      setShowEditModal(false);
+      setShowDetailsModal(false);
+      fetchUsers();
+      alert("تم حظر الجهاز والحساب نهائياً بنجاح!");
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const viewUserDetails = async (u) => {
+    setSelectedUser(u);
+    setDetailsTab("info");
+    setUserLogs({ activityLogs: [], adminActions: [] });
+    setShowDetailsModal(true);
+    setLogsLoading(true);
+    setDeleteConfirmStep(0);
+    setDeleteTextVal("");
+    try {
+      const logs = await apiCall(`/admin/users/${u.id}/logs`);
+      setUserLogs(logs);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLogsLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (deleteConfirmStep === 0) {
+      setDeleteConfirmStep(1);
+      return;
+    }
+    if (deleteConfirmStep === 1) {
+      setDeleteConfirmStep(2);
+      setDeleteTextVal("");
+      return;
+    }
+    if (deleteConfirmStep === 2) {
+      if (deleteTextVal !== "DELETE") {
+        alert("يرجى كتابة كلمة DELETE بدقة للتأكيد.");
+        return;
+      }
+      try {
+        await apiCall(`/admin/users/${selectedUser.id}`, "DELETE");
+        setShowDetailsModal(false);
+        setDeleteConfirmStep(0);
+        setDeleteTextVal("");
+        fetchUsers();
+        alert("تم حذف المستخدم وكافة السجلات المرتبطة به نهائياً!");
+      } catch (err) {
+        alert(err.message);
+      }
     }
   };
 
@@ -579,11 +715,39 @@ export default function App() {
     return `${Math.ceil(liveRound.remainingMs / 1000)}s`;
   };
 
-  const filteredUsers = users.filter(u => 
-    u.email?.toLowerCase().includes(searchUser.toLowerCase()) ||
-    u.username?.toLowerCase().includes(searchUser.toLowerCase()) ||
-    u.id.includes(searchUser)
-  );
+  const filteredUsers = users.filter(u => {
+    const searchVal = searchUser.toLowerCase();
+    const matchesSearch = 
+      !searchUser ||
+      u.email?.toLowerCase().includes(searchVal) ||
+      u.username?.toLowerCase().includes(searchVal) ||
+      u.publicId?.toLowerCase().includes(searchVal) ||
+      u.displayNickname?.toLowerCase().includes(searchVal) ||
+      u.id.includes(searchUser) ||
+      u.deviceId?.toLowerCase().includes(searchVal);
+
+    const matchesRole = filterRole === "ALL" || u.role === filterRole;
+
+    let matchesStatus = true;
+    if (filterStatus === "BANNED_TEMP") {
+      matchesStatus = u.isBanned && u.banExpiresAt !== null;
+    } else if (filterStatus === "BANNED_PERM") {
+      matchesStatus = u.isBanned && u.banExpiresAt === null;
+    } else if (filterStatus === "ACTIVE") {
+      matchesStatus = !u.isBanned;
+    } else if (filterStatus === "GUEST") {
+      matchesStatus = u.role === "GUEST";
+    }
+
+    let matchesDate = true;
+    if (filterRegDate) {
+      const regDate = new Date(u.createdAt).toDateString();
+      const filterDate = new Date(filterRegDate).toDateString();
+      matchesDate = regDate === filterDate;
+    }
+
+    return matchesSearch && matchesRole && matchesStatus && matchesDate;
+  });
 
   const direction = lang === "ar" ? "rtl" : "ltr";
 
@@ -841,62 +1005,114 @@ export default function App() {
         {/* Users Panel */}
         {activeTab === "users" && (
           <div className="glass-card">
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1.5rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
               <h2>{t.users}</h2>
-              <input 
-                type="text" 
-                placeholder={t.searchPlaceholder}
-                value={searchUser} 
-                onChange={e => setSearchUser(e.target.value)} 
-                style={{ width: "250px" }}
-              />
+              
+              {/* Advanced search and filters */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
+                <input 
+                  type="text" 
+                  placeholder={t.searchPlaceholder}
+                  value={searchUser} 
+                  onChange={e => setSearchUser(e.target.value)} 
+                  style={{ width: "220px", margin: 0 }}
+                />
+                
+                <select value={filterRole} onChange={e => setFilterRole(e.target.value)} style={{ margin: 0 }}>
+                  <option value="ALL">{lang === "ar" ? "كل الصلاحيات" : "All Roles"}</option>
+                  <option value="GUEST">{lang === "ar" ? "حساب ضيف" : "Guest"}</option>
+                  <option value="USER">{lang === "ar" ? "مستخدم عادي" : "User"}</option>
+                  <option value="ADMIN">{lang === "ar" ? "مدير" : "Admin"}</option>
+                  <option value="SUPERADMIN">{lang === "ar" ? "مدير عام" : "Super Admin"}</option>
+                </select>
+
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ margin: 0 }}>
+                  <option value="ALL">{lang === "ar" ? "كل الحالات" : "All Status"}</option>
+                  <option value="ACTIVE">{lang === "ar" ? "نشط (Active)" : "Active"}</option>
+                  <option value="BANNED_TEMP">{lang === "ar" ? "حظر مؤقت" : "Temporary Ban"}</option>
+                  <option value="BANNED_PERM">{lang === "ar" ? "حظر نهائي" : "Permanent Ban"}</option>
+                </select>
+
+                <input 
+                  type="date" 
+                  value={filterRegDate} 
+                  onChange={e => setFilterRegDate(e.target.value)} 
+                  style={{ margin: 0, padding: "0.55rem" }}
+                  title={lang === "ar" ? "تاريخ التسجيل" : "Registration Date"}
+                />
+              </div>
             </div>
 
             <div className="table-container">
               <table>
                 <thead>
                   <tr>
+                    <th>{lang === "ar" ? "المستخدم" : "User"}</th>
                     <th>{t.userId}</th>
-                    <th>{t.username}</th>
                     <th>{t.role}</th>
                     <th>{t.freeCoins}</th>
                     <th>{t.cashCoins}</th>
-                    <th>{t.stats}</th>
+                    <th>{lang === "ar" ? "تاريخ التسجيل" : "Registration Date"}</th>
+                    <th>{lang === "ar" ? "حالة الحساب" : "Account Status"}</th>
                     <th>{t.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map(u => (
-                    <tr key={u.id}>
-                      <td style={{ fontSize: "0.8rem", fontFamily: "monospace" }}>
-                        <div>{u.id}</div>
-                        <div style={{ color: "var(--text-muted)" }}>Device: {u.deviceId}</div>
-                      </td>
-                      <td>
-                        <div>{u.email || "GUEST"}</div>
-                        <div style={{ color: "var(--text-muted)" }}>{u.username}</div>
-                      </td>
-                      <td><span className="badge ended">{u.role}</span></td>
-                      <td>{(u.wallet?.freeBalance || 0).toFixed(1)}</td>
-                      <td>{(u.wallet?.cashBalance || 0).toFixed(2)}</td>
-                      <td>
-                        <div>Played: {u.roundsPlayed}</div>
-                        <div>Won: {u.roundsWon}</div>
-                      </td>
-                      <td>
-                        {user?.role === "SUPERADMIN" && (
-                          <button className="btn btn-primary" style={{ padding: "0.45rem 0.85rem", fontSize: "0.8rem" }} onClick={() => {
-                            setSelectedUser(u);
-                            setAdjustFree(u.wallet?.freeBalance.toString() || "");
-                            setAdjustCash(u.wallet?.cashBalance.toString() || "");
-                            setShowAdjustModal(true);
-                          }}>
-                            {t.editBalance}
+                  {filteredUsers.map(u => {
+                    const initials = (u.displayNickname || u.username || "?")[0].toUpperCase();
+                    const statusText = u.isBanned 
+                      ? (u.banExpiresAt ? (lang === "ar" ? "حظر مؤقت" : "Temporary Ban") : (lang === "ar" ? "حظر نهائي" : "Permanent Ban")) 
+                      : (lang === "ar" ? "نشط" : "Active");
+                    const statusBadge = u.isBanned ? "locked" : "revealing";
+
+                    return (
+                      <tr key={u.id}>
+                        <td>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                            <div className="avatar-circle" style={{
+                              width: "36px",
+                              height: "36px",
+                              borderRadius: "50%",
+                              background: "linear-gradient(135deg, #DA22FF, #9733EE)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontWeight: "bold",
+                              color: "#fff",
+                              fontSize: "1.1rem"
+                            }}>
+                              {initials}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: "600" }}>{u.displayNickname || u.username}</div>
+                              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{u.email || "GUEST ACCOUNT"}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ fontSize: "0.8rem", fontFamily: "monospace" }}>
+                          <div style={{ color: "var(--accent-gold)", fontWeight: "bold" }}>ID: {u.publicId || "N/A"}</div>
+                          <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>UUID: {u.id.substring(0, 8)}...</div>
+                        </td>
+                        <td><span className="badge ended">{u.role}</span></td>
+                        <td>{(u.wallet?.freeBalance || 0).toLocaleString()}</td>
+                        <td>{(u.wallet?.cashBalance || 0).toLocaleString()}</td>
+                        <td style={{ fontSize: "0.8rem" }}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                        <td><span className={`badge ${statusBadge}`} style={{ fontSize: "0.75rem" }}>{statusText}</span></td>
+                        <td>
+                          <button className="btn btn-primary" style={{ padding: "0.4rem 0.65rem", fontSize: "0.75rem" }} onClick={() => viewUserDetails(u)}>
+                            👁️ {lang === "ar" ? "عرض التفاصيل" : "View Details"}
                           </button>
-                        )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {filteredUsers.length === 0 && (
+                    <tr>
+                      <td colSpan="8" style={{ textAlign: "center", color: "var(--text-muted)", padding: "2rem" }}>
+                        {lang === "ar" ? "لا يوجد مستخدمين يطابقون خيارات البحث." : "No users matched the search criteria."}
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -1259,25 +1475,56 @@ export default function App() {
       {/* Balance adjustments Modal */}
       {showAdjustModal && selectedUser && (
         <div className="modal-overlay">
-          <div className="glass-card modal-content">
-            <h3>{t.editBalance}</h3>
+          <div className="glass-card modal-content" style={{ maxWidth: "450px" }}>
+            <h3>{lang === "ar" ? "إدارة الرصيد (شحن / سحب)" : "Balance Management (Credit/Debit)"}</h3>
             <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0.25rem 0 1rem" }}>
-              {t.userId}: {selectedUser.id}
+              {selectedUser.displayNickname || selectedUser.username} | ID: {selectedUser.publicId}
             </p>
             
-            <div className="form-group">
-              <label>{t.freeCoins}</label>
-              <input type="number" value={adjustFree} onChange={e => setAdjustFree(e.target.value)} />
-            </div>
-            
-            <div className="form-group">
-              <label>{t.cashCoins}</label>
-              <input type="number" value={adjustCash} onChange={e => setAdjustCash(e.target.value)} />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label>{lang === "ar" ? "نوع العملية" : "Operation"}</label>
+                <select value={adjustOp} onChange={e => setAdjustOp(e.target.value)}>
+                  <option value="ADD">{lang === "ar" ? "إضافة (+)" : "Add (+)"}</option>
+                  <option value="SUBTRACT">{lang === "ar" ? "سحب (-)" : "Withdraw (-)"}</option>
+                </select>
+              </div>
+              
+              <div className="form-group" style={{ margin: 0 }}>
+                <label>{lang === "ar" ? "العملة" : "Currency"}</label>
+                <select value={adjustType} onChange={e => setAdjustType(e.target.value)}>
+                  <option value="FREE">{lang === "ar" ? "عملات مجانية (Free)" : "Free Coins"}</option>
+                  <option value="CASH">{lang === "ar" ? "عملات شحن (Cash)" : "Cash Coins"}</option>
+                </select>
+              </div>
             </div>
 
             <div className="form-group">
-              <label>{t.reason}</label>
-              <textarea value={adjustReason} onChange={e => setAdjustReason(e.target.value)} required rows="2" placeholder="Description..."></textarea>
+              <label>{t.amount}</label>
+              <input 
+                type="number" 
+                value={adjustAmount} 
+                onChange={e => setAdjustAmount(e.target.value)} 
+                required 
+                placeholder="e.g. 5000"
+              />
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px" }}>
+                {lang === "ar" ? "الرصيد الحالي:" : "Current Balance:"}{" "}
+                {adjustType === "FREE" 
+                  ? `${(selectedUser.wallet?.freeBalance || 0).toLocaleString()} FREE`
+                  : `${(selectedUser.wallet?.cashBalance || 0).toLocaleString()} CASH`}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>{lang === "ar" ? "السبب" : "Reason"}</label>
+              <textarea 
+                value={adjustReason} 
+                onChange={e => setAdjustReason(e.target.value)} 
+                required 
+                rows="2" 
+                placeholder={lang === "ar" ? "اكتب سبب العملية..." : "Log reason..."}
+              ></textarea>
             </div>
 
             <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end", marginTop: "1.5rem" }}>
@@ -1346,6 +1593,339 @@ export default function App() {
               <button type="submit" className="btn btn-primary">{t.save}</button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Edit User Profile and Ban Modal */}
+      {showEditModal && selectedUser && (
+        <div className="modal-overlay">
+          <form onSubmit={handleEditUser} className="glass-card modal-content" style={{ maxWidth: "500px", width: "95%", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3>{lang === "ar" ? "تعديل حساب المستخدم" : "Edit User Account"}</h3>
+              {user?.role === "SUPERADMIN" && (
+                <button type="button" className="btn btn-danger" style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }} onClick={handleBanDevice}>
+                  🚫 {lang === "ar" ? "حظر الجهاز نهائياً" : "Permanent Device Ban"}
+                </button>
+              )}
+            </div>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", margin: "0.25rem 0 1rem" }}>
+              UUID: {selectedUser.id}
+            </p>
+
+            <div className="form-group">
+              <label>{lang === "ar" ? "معرف المستخدم الفريد (8 أرقام أو أحرف)" : "Unique Public ID"}</label>
+              <input 
+                type="text" 
+                value={editPublicId} 
+                onChange={e => setEditPublicId(e.target.value)} 
+                required 
+                disabled={user?.role !== "SUPERADMIN"}
+                style={{ opacity: user?.role === "SUPERADMIN" ? 1 : 0.6 }}
+              />
+              {user?.role !== "SUPERADMIN" && (
+                <div style={{ fontSize: "0.75rem", color: "var(--accent-gold)", marginTop: "2px" }}>
+                  * {lang === "ar" ? "تعديل الـ ID متاح للمدير العام فقط" : "Modifying player ID requires Super Admin privileges."}
+                </div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>{lang === "ar" ? "الاسم الظاهر" : "Display Nickname"}</label>
+              <input type="text" value={editNickname} onChange={e => setEditNickname(e.target.value)} required />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              <div className="form-group">
+                <label>{lang === "ar" ? "العمر" : "Age"}</label>
+                <input type="number" value={editAge} onChange={e => setEditAge(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>{lang === "ar" ? "الجنس" : "Gender"}</label>
+                <select value={editGender} onChange={e => setEditGender(e.target.value)}>
+                  <option value="MALE">{lang === "ar" ? "ذكر" : "MALE"}</option>
+                  <option value="FEMALE">{lang === "ar" ? "أنثى" : "FEMALE"}</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>{lang === "ar" ? "تعيين كلمة مرور جديدة (اتركه فارغاً للتخطي)" : "New Password (Leave blank to skip)"}</label>
+              <input type="password" value={editPassword} onChange={e => setEditPassword(e.target.value)} placeholder="********" />
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: "1rem 0" }}>
+              <input 
+                type="checkbox" 
+                id="removeAvatar" 
+                checked={removeAvatar} 
+                onChange={e => setRemoveAvatar(e.target.checked)} 
+                style={{ width: "16px", height: "16px", cursor: "pointer" }}
+              />
+              <label htmlFor="removeAvatar" style={{ cursor: "pointer", fontSize: "0.85rem" }}>
+                {lang === "ar" ? "حذف الصورة الشخصية (إعادة الافتراضي)" : "Reset Profile Picture to Default"}
+              </label>
+            </div>
+
+            <div style={{ borderTop: "1px solid var(--glass-border)", paddingTop: "1rem", marginTop: "1rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <input 
+                  type="checkbox" 
+                  id="editIsBanned" 
+                  checked={editIsBanned} 
+                  onChange={e => setEditIsBanned(e.target.checked)}
+                  style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                />
+                <label htmlFor="editIsBanned" style={{ cursor: "pointer", fontWeight: "bold", color: editIsBanned ? "var(--accent-neon-red)" : "inherit" }}>
+                  ⚠️ {lang === "ar" ? "حظر هذا الحساب" : "Ban this Account"}
+                </label>
+              </div>
+
+              {editIsBanned && (
+                <div style={{ marginTop: "1rem", paddingLeft: "1rem", borderLeft: "2px solid var(--accent-neon-red)" }}>
+                  <div className="form-group">
+                    <label>{lang === "ar" ? "مدة الحظر بالأيام" : "Ban Duration in Days"}</label>
+                    <input 
+                      type="number" 
+                      value={editBanDays} 
+                      onChange={e => setEditBanDays(e.target.value)} 
+                      placeholder={user?.role === "SUPERADMIN" ? (lang === "ar" ? "اتركه فارغاً لحظر نهائي" : "Blank = permanent") : "e.g. 7"}
+                      required={user?.role !== "SUPERADMIN"}
+                    />
+                    
+                    {/* Quick duration presets */}
+                    <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
+                      {[1, 3, 7, 30].map(days => (
+                        <button 
+                          key={days} 
+                          type="button" 
+                          className="btn" 
+                          style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", border: "1px solid var(--glass-border)" }}
+                          onClick={() => setEditBanDays(days.toString())}
+                        >
+                          {days} {lang === "ar" ? "يوم" : "Days"}
+                        </button>
+                      ))}
+                      {user?.role === "SUPERADMIN" && (
+                        <button 
+                          type="button" 
+                          className="btn btn-danger" 
+                          style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}
+                          onClick={() => setEditBanDays("")}
+                        >
+                          {lang === "ar" ? "حظر نهائي 🚫" : "Permanent 🚫"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>{lang === "ar" ? "سبب الحظر" : "Ban Reason"}</label>
+                    <textarea value={editBanReason} onChange={e => setEditBanReason(e.target.value)} rows="2" placeholder="Reason..."></textarea>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end", marginTop: "1.5rem" }}>
+              <button type="button" className="btn" onClick={() => setShowEditModal(false)}>{t.cancel}</button>
+              <button type="submit" className="btn btn-primary">{t.save}</button>
+            </div>
+          </form>
+        </div>
+      )}
+      {/* User Details Modal (Full Profile overview & Purging/Admin actions) */}
+      {showDetailsModal && selectedUser && (
+        <div className="modal-overlay">
+          <div className="glass-card modal-content" style={{ maxWidth: "700px", width: "95%", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--glass-border)", paddingBottom: "1rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{
+                  width: "42px",
+                  height: "42px",
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #DA22FF, #9733EE)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "bold",
+                  color: "#fff",
+                  fontSize: "1.25rem"
+                }}>
+                  {(selectedUser.displayNickname || selectedUser.username || "?")[0].toUpperCase()}
+                </div>
+                <div>
+                  <h3 style={{ margin: 0 }}>{selectedUser.displayNickname || selectedUser.username}</h3>
+                  <span style={{ fontSize: "0.8rem", color: "var(--accent-gold)" }}>@{selectedUser.username}</span>
+                </div>
+              </div>
+              
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <button className="btn btn-primary" style={{ padding: "0.4rem 0.75rem", fontSize: "0.8rem" }} onClick={() => {
+                  setAdjustAmount("");
+                  setAdjustReason("");
+                  setShowAdjustModal(true);
+                }}>{lang === "ar" ? "🪙 إدارة العملات" : "🪙 Manage Coins"}</button>
+
+                <button className="btn" style={{ padding: "0.4rem 0.75rem", fontSize: "0.8rem", border: "1px solid var(--glass-border)" }} onClick={() => {
+                  setEditNickname(selectedUser.displayNickname || "");
+                  setEditAge(selectedUser.age?.toString() || "");
+                  setEditGender(selectedUser.gender || "MALE");
+                  setEditPublicId(selectedUser.publicId || "");
+                  setEditIsBanned(selectedUser.isBanned || false);
+                  setEditBanDays("");
+                  setEditBanReason(selectedUser.banReason || "");
+                  setRemoveAvatar(false);
+                  setEditPassword("");
+                  setShowEditModal(true);
+                }}>{lang === "ar" ? "⚙️ تعديل الحساب / الحظر" : "⚙️ Edit / Ban"}</button>
+                
+                <button className="btn btn-danger" style={{ padding: "0.4rem 0.75rem", fontSize: "0.8rem" }} onClick={() => setShowDetailsModal(false)}>
+                  {lang === "ar" ? "إغلاق" : "Close"}
+                </button>
+              </div>
+            </div>
+
+            {/* Tabs Selector */}
+            <div style={{ display: "flex", borderBottom: "1px solid var(--glass-border)", margin: "1rem 0 0" }}>
+              <button className={`nav-item ${detailsTab === "info" ? "active" : ""}`} style={{ padding: "0.75rem 1rem", border: 0, background: "transparent", color: detailsTab === "info" ? "var(--accent-gold)" : "inherit", cursor: "pointer", borderBottom: detailsTab === "info" ? "2px solid var(--accent-gold)" : "none" }} onClick={() => setDetailsTab("info")}>
+                📋 {lang === "ar" ? "المعلومات الأساسية" : "Basic Information"}
+              </button>
+              <button className={`nav-item ${detailsTab === "activity" ? "active" : ""}`} style={{ padding: "0.75rem 1rem", border: 0, background: "transparent", color: detailsTab === "activity" ? "var(--accent-gold)" : "inherit", cursor: "pointer", borderBottom: detailsTab === "activity" ? "2px solid var(--accent-gold)" : "none" }} onClick={() => setDetailsTab("activity")}>
+                🎮 {lang === "ar" ? "سجل النشاط (Activity Log)" : "Activity Logs"}
+              </button>
+              <button className={`nav-item ${detailsTab === "admin" ? "active" : ""}`} style={{ padding: "0.75rem 1rem", border: 0, background: "transparent", color: detailsTab === "admin" ? "var(--accent-gold)" : "inherit", cursor: "pointer", borderBottom: detailsTab === "admin" ? "2px solid var(--accent-gold)" : "none" }} onClick={() => setDetailsTab("admin")}>
+                🛡️ {lang === "ar" ? "سجل الإدارة (Admin Logs)" : "Admin Actions"}
+              </button>
+            </div>
+
+            {/* Tab 1: Basic Information */}
+            {detailsTab === "info" && (
+              <div style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+                <div>
+                  <h4 style={{ color: "var(--accent-gold)", marginBottom: "0.75rem" }}>{lang === "ar" ? "الملف الشخصي" : "Profile Details"}</h4>
+                  <p style={{ margin: "0.35rem 0" }}><strong>UUID:</strong> <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontFamily: "monospace" }}>{selectedUser.id}</span></p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>User ID (Public):</strong> <span style={{ color: "var(--accent-gold)", fontWeight: "bold" }}>{selectedUser.publicId || "N/A"}</span></p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>{t.email}:</strong> {selectedUser.email || "حساب زائر (Guest)"}</p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "العمر والجنس:" : "Age & Gender:"}</strong> {selectedUser.age || "N/A"} ({selectedUser.gender || "N/A"})</p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>{t.role}:</strong> <span className="badge ended" style={{ fontSize: "0.7rem" }}>{selectedUser.role}</span></p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "تاريخ التسجيل:" : "Registered At:"}</strong> {new Date(selectedUser.createdAt).toLocaleString()}</p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "الجولات والانتصارات:" : "Rounds Played / Won:"}</strong> {selectedUser.roundsPlayed} / {selectedUser.roundsWon}</p>
+                </div>
+                <div>
+                  <h4 style={{ color: "var(--accent-gold)", marginBottom: "0.75rem" }}>{lang === "ar" ? "الأجهزة والأمان" : "Devices & Security"}</h4>
+                  <p style={{ margin: "0.35rem 0" }}><strong>Device ID:</strong> <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontFamily: "monospace" }}>{selectedUser.deviceId || "N/A"}</span></p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>IP Address:</strong> <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{selectedUser.lastIp || "N/A"}</span></p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>Wallet Free Balance:</strong> <strong style={{ color: "var(--accent-gold)" }}>{(selectedUser.wallet?.freeBalance || 0).toLocaleString()} FREE</strong></p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>Wallet Cash Balance:</strong> <strong style={{ color: "var(--accent-neon-green)" }}>{(selectedUser.wallet?.cashBalance || 0).toLocaleString()} CASH</strong></p>
+                  
+                  {/* SuperAdmin Purge Account Purging Card */}
+                  {user?.role === "SUPERADMIN" && (
+                    <div style={{ marginTop: "1.5rem", padding: "1rem", border: "1px dashed var(--accent-neon-red)", borderRadius: "8px", background: "rgba(239,35,60,0.05)" }}>
+                      <h5 style={{ color: "var(--accent-neon-red)", margin: 0, display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                        ⚠️ {lang === "ar" ? "حذف الحساب نهائياً من النظام" : "Delete Account Permanently"}
+                      </h5>
+                      <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px" }}>
+                        {lang === "ar" ? "سيتم مسح المحفظة والجولات والمهام والإحالات تماماً ولا يمكن استرجاعها." : "This will wipe all wagers, wallets, tasks, and invitations. Action cannot be undone."}
+                      </p>
+                      
+                      {deleteConfirmStep === 0 && (
+                        <button className="btn btn-danger" style={{ padding: "0.4rem 0.65rem", fontSize: "0.75rem", marginTop: "0.5rem" }} onClick={handleDeleteUser}>
+                          🗑️ {lang === "ar" ? "حذف الحساب نهائياً" : "Delete Account"}
+                        </button>
+                      )}
+                      {deleteConfirmStep === 1 && (
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <span style={{ fontSize: "0.8rem", color: "var(--accent-neon-red)", fontWeight: "bold" }}>
+                            {lang === "ar" ? "هل أنت متأكد تماماً؟ اضغط مجدداً لتأكيد المتابعة." : "Are you sure? Click again to confirm."}
+                          </span>
+                          <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
+                            <button className="btn btn-danger" style={{ padding: "0.3rem 0.5rem", fontSize: "0.75rem" }} onClick={handleDeleteUser}>
+                              {lang === "ar" ? "نعم، متأكد" : "Yes, Confirm"}
+                            </button>
+                            <button className="btn" style={{ padding: "0.3rem 0.5rem", fontSize: "0.75rem" }} onClick={() => setDeleteConfirmStep(0)}>
+                              {lang === "ar" ? "إلغاء" : "Cancel"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {deleteConfirmStep === 2 && (
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <label style={{ fontSize: "0.8rem", color: "var(--accent-neon-red)", display: "block", marginBottom: "4px" }}>
+                            {lang === "ar" ? "للتأكيد الأخير، اكتب كلمة DELETE في الحقل أدناه:" : "Type DELETE below for final execution:"}
+                          </label>
+                          <div style={{ display: "flex", gap: "0.5rem" }}>
+                            <input 
+                              type="text" 
+                              value={deleteTextVal} 
+                              onChange={e => setDeleteTextVal(e.target.value)} 
+                              placeholder="DELETE" 
+                              style={{ width: "120px", padding: "0.25rem", margin: 0, border: "1px solid var(--accent-neon-red)" }}
+                            />
+                            <button className="btn btn-danger" style={{ padding: "0.3rem 0.65rem", fontSize: "0.75rem" }} onClick={handleDeleteUser}>
+                              {lang === "ar" ? "تدمير الحساب 💥" : "Destroy Account 💥"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Tab 2: Activity Logs */}
+            {detailsTab === "activity" && (
+              <div style={{ marginTop: "1rem" }}>
+                {logsLoading ? (
+                  <p style={{ textAlign: "center", color: "var(--text-muted)" }}>{lang === "ar" ? "جاري تحميل السجلات..." : "Loading logs..."}</p>
+                ) : (
+                  <div style={{ maxHeight: "300px", overflowY: "auto", paddingRight: "0.5rem" }}>
+                    {userLogs.activityLogs.map((log, index) => (
+                      <div key={index} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "0.6rem 0", display: "flex", justifyContent: "space-between", gap: "1rem" }}>
+                        <div>
+                          <span className="badge ended" style={{ fontSize: "0.65rem", padding: "1px 4px", marginRight: lang === "en" ? "6px" : 0, marginLeft: lang === "ar" ? "6px" : 0 }}>{log.type}</span>
+                          <span style={{ fontSize: "0.85rem" }}>{log.message}</span>
+                        </div>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new Date(log.date).toLocaleString()}</span>
+                      </div>
+                    ))}
+                    {userLogs.activityLogs.length === 0 && (
+                      <p style={{ textAlign: "center", color: "var(--text-muted)", marginTop: "2rem" }}>
+                        {lang === "ar" ? "لا توجد نشاطات مسجلة لهذا الحساب." : "No activities logged for this user."}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Tab 3: Admin Actions Logs */}
+            {detailsTab === "admin" && (
+              <div style={{ marginTop: "1rem" }}>
+                {logsLoading ? (
+                  <p style={{ textAlign: "center", color: "var(--text-muted)" }}>{lang === "ar" ? "جاري تحميل السجلات..." : "Loading logs..."}</p>
+                ) : (
+                  <div style={{ maxHeight: "300px", overflowY: "auto", paddingRight: "0.5rem" }}>
+                    {userLogs.adminActions.map((action, index) => (
+                      <div key={index} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "0.6rem 0", display: "flex", justifyContent: "space-between", gap: "1rem" }}>
+                        <div>
+                          <span className="badge warning" style={{ fontSize: "0.65rem", padding: "1px 4px", background: "var(--accent-gold)", color: "#000", marginRight: lang === "en" ? "6px" : 0, marginLeft: lang === "ar" ? "6px" : 0 }}>
+                            {action.type.replace("ADMIN_", "")}
+                          </span>
+                          <span style={{ fontSize: "0.85rem" }}>{action.message}</span>
+                        </div>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new Date(action.date).toLocaleString()}</span>
+                      </div>
+                    ))}
+                    {userLogs.adminActions.length === 0 && (
+                      <p style={{ textAlign: "center", color: "var(--text-muted)", marginTop: "2rem" }}>
+                        {lang === "ar" ? "لم يجر المدراء أي عمليات تعديل على هذا الحساب." : "No administrative actions performed on this user."}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
