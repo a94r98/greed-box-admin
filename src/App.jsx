@@ -96,7 +96,14 @@ const TRANSLATIONS = {
     recentResults: "شريط آخر الجولات:",
     myRoundsHistory: "سجل مراهناتي الحالية",
     betFree: "رهان الماسات",
-    betCash: "رهان عملة شحن"
+    betCash: "رهان عملة شحن",
+    referralSettings: "إعدادات الدعوات والمكافآت",
+    referralActive: "تفعيل نظام الدعوات",
+    inviteRewardInviter: "مكافأة الداعي (كونز)",
+    inviteRewardInvitee: "مكافأة المدعو (كونز)",
+    supportSettings: "إعدادات الدعم الفني",
+    supportTelegram: "رابط الدعم تليجرام",
+    supportWhatsApp: "رابط الدعم واتساب"
   },
   en: {
     brand: "Greed Boxes",
@@ -190,7 +197,14 @@ const TRANSLATIONS = {
     recentResults: "Last Rounds Outcomes:",
     myRoundsHistory: "My Active Bets",
     betFree: "Bet Free Coins",
-    betCash: "Bet Cash Coins"
+    betCash: "Bet Cash Coins",
+    referralSettings: "Referrals & Rewards Settings",
+    referralActive: "Referral System Active",
+    inviteRewardInviter: "Inviter Reward (Coins)",
+    inviteRewardInvitee: "Invitee Reward (Coins)",
+    supportSettings: "Technical Support Settings",
+    supportTelegram: "Telegram Support Link",
+    supportWhatsApp: "WhatsApp Support Link"
   }
 };
 
@@ -1750,6 +1764,41 @@ export default function App() {
                   <option value="true">Active</option>
                   <option value="false">Disabled</option>
                 </select>
+              </div>
+            </div>
+
+            <h3 style={{ marginTop: "1.5rem", marginBottom: "0.75rem" }}>{t.referralSettings}</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
+              <div className="form-group">
+                <label>{t.referralActive}</label>
+                <select value={config.isReferralActive ? "true" : "false"} onChange={e => setConfig({ ...config, isReferralActive: e.target.value === "true" })}>
+                  <option value="true">Active</option>
+                  <option value="false">Disabled</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Limit per day</label>
+                <input type="number" value={config.dailyInviteLimit || 5} onChange={e => setConfig({ ...config, dailyInviteLimit: parseInt(e.target.value) })} required />
+              </div>
+              <div className="form-group">
+                <label>{t.inviteRewardInviter}</label>
+                <input type="number" value={config.inviteRewardInviter || 0} onChange={e => setConfig({ ...config, inviteRewardInviter: parseFloat(e.target.value) })} required />
+              </div>
+              <div className="form-group">
+                <label>{t.inviteRewardInvitee}</label>
+                <input type="number" value={config.inviteRewardInvitee || 0} onChange={e => setConfig({ ...config, inviteRewardInvitee: parseFloat(e.target.value) })} required />
+              </div>
+            </div>
+
+            <h3 style={{ marginTop: "1.5rem", marginBottom: "0.75rem" }}>{t.supportSettings}</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
+              <div className="form-group">
+                <label>{t.supportTelegram}</label>
+                <input type="text" value={config.supportTelegram || ""} onChange={e => setConfig({ ...config, supportTelegram: e.target.value })} placeholder="e.g. https://t.me/yourusername" />
+              </div>
+              <div className="form-group">
+                <label>{t.supportWhatsApp}</label>
+                <input type="text" value={config.supportWhatsApp || ""} onChange={e => setConfig({ ...config, supportWhatsApp: e.target.value })} placeholder="e.g. https://wa.me/number" />
               </div>
             </div>
 
