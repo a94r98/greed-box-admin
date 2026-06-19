@@ -1066,7 +1066,7 @@ export default function App() {
                     key={r.id} 
                     className={`btn ${selectedRoundId === r.id ? "btn-primary" : "btn-secondary"}`}
                     onClick={() => fetchRoundPlayers(r.id)}
-                    style={{ minWidth: "100px" }}
+                    style={{ minWidth: "100px", flexShrink: 0 }}
                   >
                     جولة #{r.sequenceNumber}
                     <br/>
@@ -1124,14 +1124,14 @@ export default function App() {
             </div>
 
             <div className="glass-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
                 <h3>{t.roundStatus}</h3>
                 <span className={`badge ${(liveRound?.status || "ended").toLowerCase()}`}>
                   {liveRound?.status || "ENDED"}
                 </span>
               </div>
               
-              <div style={{ marginTop: "1rem", display: "flex", gap: "2.5rem" }}>
+              <div style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", gap: "1.5rem" }}>
                 <div>
                   <span className="stat-label">{t.roundId}</span>
                   <p style={{ fontFamily: "monospace", fontSize: "0.9rem", color: "var(--accent-gold)" }}>
@@ -1204,7 +1204,7 @@ export default function App() {
 
             {/* Input betting amount and place bets */}
             <div className="glass-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "1rem" }}>
                 <h3>{t.betPrompt}</h3>
                 <input 
                   type="number" 
