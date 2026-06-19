@@ -1044,23 +1044,23 @@ export default function App() {
                 <span className="stat-value" style={{ color: '#40E0D0', marginTop: '10px' }}>{formatNumber(stats?.counts?.totalUserDiamonds)}</span>
               </div>
 
-              {/* الصندوق الاسود - كونزات */}
-              <div className="glass-card stat-card sky-blue">
-                <span className="stat-label">الصندوق الأسود (الخزينة) - كونزات</span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px' }}>
-                  <span className="stat-value" style={{ color: 'var(--accent-gold)' }}>{formatNumber(stats?.pools?.cash)}</span>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                    ≈ ${( (stats?.pools?.cash || 0) / 3000000 ).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
+              {/* إجمالي الأرباح - كونزات */}
+              <div className="glass-card stat-card green">
+                <span className="stat-label">{t.totalProfits} - كونزات</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: "10px" }}>
+                  <span className="stat-value" style={{ color: 'var(--accent-gold)' }}>{formatNumber(stats?.adminProfits?.cash)}</span>
+                  <span style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>
+                    ≈ ${( (stats?.adminProfits?.cash || 0) / 3000000 ).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
 
-              {/* الصندوق الاسود - ماسات */}
-              <div className="glass-card stat-card sky-blue">
-                <span className="stat-label">الصندوق الأسود (الخزينة) - ماسات</span>
-                <span className="stat-value" style={{ color: '#40E0D0', marginTop: '10px' }}>{formatNumber(stats?.pools?.free)}</span>
+              {/* إجمالي الأرباح - ماسات */}
+              <div className="glass-card stat-card green">
+                <span className="stat-label">{t.totalProfits} - ماسات</span>
+                <span className="stat-value" style={{ color: '#40E0D0', marginTop: '10px' }}>{formatNumber(stats?.adminProfits?.free)}</span>
               </div>
-
               {/* المتجر - جميع المنتجات */}
               <div className="glass-card stat-card turquoise">
                 <span className="stat-label">المتجر - جميع المنتجات</span>
@@ -1100,6 +1100,27 @@ export default function App() {
           <div>
             <h2>{t.playGame}</h2>
 
+
+            <div className="stats-grid" style={{ marginBottom: "1.5rem" }}>
+              {/* الصندوق الاسود - كونزات */}
+              <div className="glass-card stat-card sky-blue">
+                <span className="stat-label">الصندوق الأسود (الخزينة) - كونزات</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px' }}>
+                  <span className="stat-value" style={{ color: 'var(--accent-gold)' }}>{formatNumber(stats?.pools?.cash)}</span>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    ≈ ${( (stats?.pools?.cash || 0) / 3000000 ).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <button className="btn btn-primary" style={{ marginTop: "15px", width: "100%", padding: "0.5rem" }} onClick={() => { setWithdrawPoolType("CASH"); setShowWithdrawModal(true); }}>{t.withdrawProfit}</button>
+              </div>
+
+              {/* الصندوق الاسود - ماسات */}
+              <div className="glass-card stat-card sky-blue">
+                <span className="stat-label">الصندوق الأسود (الخزينة) - ماسات</span>
+                <span className="stat-value" style={{ color: '#40E0D0', marginTop: '10px' }}>{formatNumber(stats?.pools?.free)}</span>
+                <button className="btn btn-primary" style={{ marginTop: "15px", width: "100%", padding: "0.5rem" }} onClick={() => { setWithdrawPoolType("FREE"); setShowWithdrawModal(true); }}>{t.withdrawProfit}</button>
+              </div>
+            </div>
             {/* Rounds Ribbon */}
             <div className="glass-card" style={{ marginBottom: "1.5rem" }}>
               <h3>شريط الجولات السابقة</h3>
