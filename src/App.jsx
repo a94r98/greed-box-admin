@@ -32,7 +32,7 @@ const TRANSLATIONS = {
     tasks: "المهام اليومية",
     pool: "سجل الخزينة",
     simulation: "محاكاة النظام",
-    playGame: "تجربة اللعب كلاعب 🎮",
+    playGame: "قسم اللعبة 🎮",
     logout: "تسجيل الخروج",
     loginTitle: "تسجيل دخول الإدارة",
     email: "البريد الإلكتروني",
@@ -133,7 +133,7 @@ const TRANSLATIONS = {
     tasks: "Daily Tasks",
     pool: "Pool Logs",
     simulation: "Simulation Engine",
-    playGame: "Play / Test Game 🎮",
+    playGame: "Game Section 🎮",
     logout: "Logout",
     loginTitle: "Admin Portal Login",
     email: "Email Address",
@@ -241,6 +241,13 @@ export default function App() {
 
   // Live Stats & Sockets state
   const [stats, setStats] = useState(null);
+
+  // Rounds History state
+  const [pastRounds, setPastRounds] = useState([]);
+  const [selectedRoundId, setSelectedRoundId] = useState(null);
+  const [roundPlayers, setRoundPlayers] = useState([]);
+  const [loadingRoundPlayers, setLoadingRoundPlayers] = useState(false);
+
   const [socketConnected, setSocketConnected] = useState(false);
   const [liveRound, setLiveRound] = useState(null);
   const [liveBets, setLiveBets] = useState({ totalFree: 0, totalCash: 0, boxBets: {} });
@@ -426,6 +433,7 @@ export default function App() {
   useEffect(() => {
     if (!token) return;
     if (activeTab === "users") fetchUsers();
+    if (activeTab === "play") fetchPastRounds();
     if (activeTab === "deposits") fetchDeposits();
     if (activeTab === "withdrawals") fetchWithdrawals();
     if (activeTab === "config") fetchConfig();
@@ -491,6 +499,17 @@ export default function App() {
   };
 
   const fetchStats = () => apiCall("/admin/stats").then(setStats).catch(console.error);
+
+  const fetchPastRounds = () => apiCall("/admin/rounds/recent").then(d => setPastRounds(d.rounds || [])).catch(console.error);
+  const fetchRoundPlayers = (roundId) => {
+    setSelectedRoundId(roundId);
+    setLoadingRoundPlayers(true);
+    apiCall(`/admin/rounds/${roundId}/players`)
+      .then(d => setRoundPlayers(d.bets || []))
+      .catch(console.error)
+      .finally(() => setLoadingRoundPlayers(false));
+  };
+
   const fetchUsers = () => apiCall("/admin/users").then(d => setUsers(d.users)).catch(console.error);
   const fetchDeposits = () => apiCall("/admin/deposits").then(d => setDeposits(d.deposits)).catch(console.error);
   const fetchWithdrawals = () => apiCall("/admin/withdrawals").then(d => setWithdrawals(d.withdrawals)).catch(console.error);
@@ -1037,6 +1056,73 @@ export default function App() {
         {activeTab === "play" && (
           <div>
             <h2>{t.playGame}</h2>
+
+            {/* Rounds Ribbon */}
+            <div className="glass-card" style={{ marginBottom: "1.5rem" }}>
+              <h3>شريط الجولات السابقة</h3>
+              <div style={{ display: "flex", gap: "0.5rem", overflowX: "auto", padding: "1rem 0" }}>
+                {pastRounds.map(r => (
+                  <button 
+                    key={r.id} 
+                    className={`btn ${selectedRoundId === r.id ? "btn-primary" : "btn-secondary"}`}
+                    onClick={() => fetchRoundPlayers(r.id)}
+                    style={{ minWidth: "100px" }}
+                  >
+                    جولة #{r.sequenceNumber}
+                    <br/>
+                    <small>{r.winningMultiplier ? r.winningMultiplier + 'x' : 'N/A'}</small>
+                  </button>
+                ))}
+                {pastRounds.length === 0 && <span style={{ color: "var(--text-muted)" }}>لا توجد جولات منتهية بعد.</span>}
+              </div>
+
+              {/* Round Players Details */}
+              {selectedRoundId && (
+                <div style={{ marginTop: "1.5rem" }}>
+                  <h4>تفاصيل الجولة #{pastRounds.find(r => r.id === selectedRoundId)?.sequenceNumber}</h4>
+                  {loadingRoundPlayers ? (
+                    <p style={{ color: "var(--text-muted)" }}>جاري التحميل...</p>
+                  ) : (
+                    <div className="table-container" style={{ marginTop: "1rem" }}>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>الآيدي (ID)</th>
+                            <th>مبلغ المراهنة</th>
+                            <th>مبلغ الربح</th>
+                            <th>العملة</th>
+                            <th>الصندوق</th>
+                            <th>النتيجة</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {roundPlayers.map(bet => (
+                            <tr key={bet.betId}>
+                              <td style={{ fontFamily: "monospace" }}>{bet.playerId}</td>
+                              <td>{formatNumber(bet.amount)}</td>
+                              <td style={{ color: bet.status === "WON" ? "var(--accent-neon-green)" : "inherit" }}>
+                                {bet.status === "WON" ? `+${formatNumber(bet.winAmount)}` : "0"}
+                              </td>
+                              <td>{bet.currency === "CASH" ? "كونزات" : "ماسات"}</td>
+                              <td>{bet.boxIndex}</td>
+                              <td>
+                                <span className={`badge ${bet.status.toLowerCase()}`}>{bet.status}</span>
+                              </td>
+                            </tr>
+                          ))}
+                          {roundPlayers.length === 0 && (
+                            <tr>
+                              <td colSpan="6" style={{ textAlign: "center", color: "var(--text-muted)" }}>لا يوجد لاعبين في هذه الجولة</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <div className="glass-card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h3>{t.roundStatus}</h3>
