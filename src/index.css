@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg-primary: #080710;
-  --bg-secondary: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0f8ff;
+  --glass-border: rgba(0, 180, 216, 0.3);
   --accent-gold: #ffb703;
-  --accent-neon-green: #06d6a0;
+  --accent-neon-green: #00ced1; /* Turquoise */
   --accent-neon-red: #ff5e62;
-  --accent-neon-blue: #1e90ff;
-  --text-main: #f5f5f7;
-  --text-muted: #8e8e93;
-  --shadow-color: rgba(0, 0, 0, 0.5);
+  --accent-neon-blue: #00b4d8; /* Sky Blue */
+  --text-main: #1a202c;
+  --text-muted: #4a5568;
+  --shadow-color: rgba(0, 180, 216, 0.15);
   --font-family: 'Outfit', sans-serif;
   --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -28,7 +28,7 @@ body {
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
-  background: radial-gradient(circle at 10% 20%, rgb(4, 28, 44) 0%, var(--bg-primary) 90.2%);
+  background: radial-gradient(circle at 10% 20%, #e0f7fa 0%, var(--bg-primary) 90.2%);
 }
 
 /* Scrollbar styles */
@@ -55,7 +55,7 @@ body {
 
 .sidebar {
   width: 260px;
-  background: rgba(8, 7, 16, 0.85);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(15px);
   border-inline-end: 1px solid var(--glass-border);
   padding: 2rem 1.5rem;
@@ -137,12 +137,12 @@ body {
 
 /* Glassmorphism card systems */
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 180, 216, 0.15);
   margin-bottom: 2rem;
   transition: var(--transition-smooth);
 }
@@ -176,7 +176,8 @@ body {
   height: 100%;
 }
 
-.stat-card.blue::before { background: var(--accent-neon-blue); }
+.stat-card.sky-blue::before { background: #87CEEB; }
+.stat-card.turquoise::before { background: #40E0D0; }
 .stat-card.gold::before { background: var(--accent-gold); }
 .stat-card.green::before { background: var(--accent-neon-green); }
 .stat-card.red::before { background: var(--accent-neon-red); }
@@ -207,7 +208,7 @@ body {
 .badge.locked { background: rgba(255, 94, 98, 0.15); color: var(--accent-neon-red); border: 1px solid var(--accent-neon-red); }
 .badge.calculating { background: rgba(255, 183, 3, 0.15); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
 .badge.revealing { background: rgba(6, 214, 160, 0.15); color: var(--accent-neon-green); border: 1px solid var(--accent-neon-green); }
-.badge.finalizing { background: rgba(255, 255, 255, 0.15); color: var(--text-main); border: 1px solid var(--text-main); }
+.badge.finalizing { background: rgba(0, 180, 216, 0.15); color: var(--text-main); border: 1px solid var(--glass-border); }
 .badge.ended { background: var(--bg-secondary); color: var(--text-muted); border: 1px solid var(--glass-border); }
 
 /* Table configurations */
@@ -232,13 +233,13 @@ th {
 
 td {
   padding: 1.25rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(0, 180, 216, 0.2);
   font-size: 0.95rem;
   vertical-align: middle;
 }
 
 tr:hover td {
-  background: rgba(255, 255, 255, 0.01);
+  background: rgba(0, 180, 216, 0.05);
 }
 
 /* Form inputs & Button configurations */
@@ -256,7 +257,7 @@ label {
 }
 
 input, select, textarea {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.8);
   border: 1px solid var(--glass-border);
   border-radius: 10px;
   padding: 0.75rem 1rem;
@@ -334,7 +335,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .box-card {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   padding: 1rem;
