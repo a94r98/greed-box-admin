@@ -3,6 +3,24 @@ import { io } from "socket.io-client";
 
 const API_BASE = "https://greed-box-server.onrender.com/api";
 
+
+function formatNumber(num, decimals = 2) {
+  if (num === null || num === undefined) return "0";
+  if (typeof num === 'string') num = parseFloat(num);
+  if (isNaN(num)) return "0";
+  
+  if (num >= 1e9) {
+    return (num / 1e9).toFixed(decimals).replace(/\.?0+$/, '') + 'B';
+  }
+  if (num >= 1e6) {
+    return (num / 1e6).toFixed(decimals).replace(/\.?0+$/, '') + 'M';
+  }
+  if (num >= 1e3) {
+    return (num / 1e3).toFixed(decimals).replace(/\.?0+$/, '') + 'K';
+  }
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: decimals }).format(num);
+}
+
 const TRANSLATIONS = {
   ar: {
     brand: "صناديق الطمع",
@@ -938,67 +956,67 @@ export default function App() {
               {/* المستخدمين: متصلين الآن */}
               <div className="glass-card stat-card sky-blue">
                 <span className="stat-label">المستخدمين (متصلين الآن)</span>
-                <span className="stat-value" style={{ color: '#87CEEB', marginTop: '10px' }}>{stats?.counts?.usersOnline || 0}</span>
+                <span className="stat-value" style={{ color: '#87CEEB', marginTop: '10px' }}>{formatNumber(stats?.counts?.usersOnline)}</span>
               </div>
 
               {/* المستخدمين: كل المستخدمين */}
               <div className="glass-card stat-card sky-blue">
                 <span className="stat-label">كل المستخدمين</span>
-                <span className="stat-value" style={{ marginTop: '10px' }}>{stats?.counts?.users || 0}</span>
+                <span className="stat-value" style={{ marginTop: '10px' }}>{formatNumber(stats?.counts?.users)}</span>
               </div>
 
               {/* الكونزات */}
               <div className="glass-card stat-card gold">
                 <span className="stat-label">جميع كونزات المستخدمين</span>
-                <span className="stat-value" style={{ marginTop: '10px' }}>{stats?.counts?.totalUserCoins?.toFixed(2) || "0.00"}</span>
+                <span className="stat-value" style={{ marginTop: '10px' }}>{formatNumber(stats?.counts?.totalUserCoins)}</span>
               </div>
 
               {/* الماسات */}
               <div className="glass-card stat-card turquoise">
                 <span className="stat-label">جميع ماسات المستخدمين</span>
-                <span className="stat-value" style={{ color: '#40E0D0', marginTop: '10px' }}>{stats?.counts?.totalUserDiamonds?.toFixed(2) || "0.00"}</span>
+                <span className="stat-value" style={{ color: '#40E0D0', marginTop: '10px' }}>{formatNumber(stats?.counts?.totalUserDiamonds)}</span>
               </div>
 
               {/* الصندوق الاسود - كونزات */}
               <div className="glass-card stat-card sky-blue">
                 <span className="stat-label">الصندوق الأسود (الخزينة) - كونزات</span>
-                <span className="stat-value" style={{ color: 'var(--accent-gold)', marginTop: '10px' }}>{stats?.pools?.cash?.toFixed(2) || "0.00"}</span>
+                <span className="stat-value" style={{ color: 'var(--accent-gold)', marginTop: '10px' }}>{formatNumber(stats?.pools?.cash)}</span>
               </div>
 
               {/* الصندوق الاسود - ماسات */}
               <div className="glass-card stat-card sky-blue">
                 <span className="stat-label">الصندوق الأسود (الخزينة) - ماسات</span>
-                <span className="stat-value" style={{ color: '#40E0D0', marginTop: '10px' }}>{stats?.pools?.free?.toFixed(2) || "0.00"}</span>
+                <span className="stat-value" style={{ color: '#40E0D0', marginTop: '10px' }}>{formatNumber(stats?.pools?.free)}</span>
               </div>
 
               {/* المتجر - جميع المنتجات */}
               <div className="glass-card stat-card turquoise">
                 <span className="stat-label">المتجر - جميع المنتجات</span>
-                <span className="stat-value" style={{ marginTop: '10px' }}>{stats?.store?.productsCount || 0}</span>
+                <span className="stat-value" style={{ marginTop: '10px' }}>{formatNumber(stats?.store?.productsCount)}</span>
               </div>
 
               {/* المتجر - جميع الطلبات */}
               <div className="glass-card stat-card turquoise">
                 <span className="stat-label">المتجر - جميع الطلبات</span>
-                <span className="stat-value" style={{ marginTop: '10px' }}>{stats?.store?.totalOrders || 0}</span>
+                <span className="stat-value" style={{ marginTop: '10px' }}>{formatNumber(stats?.store?.totalOrders)}</span>
               </div>
 
               {/* المتجر - الطلبات المعلقة */}
               <div className="glass-card stat-card turquoise">
                 <span className="stat-label">طلبات المتجر المعلقة</span>
-                <span className="stat-value" style={{ color: 'var(--accent-gold)', marginTop: '10px' }}>{stats?.store?.pendingOrders || 0}</span>
+                <span className="stat-value" style={{ color: 'var(--accent-gold)', marginTop: '10px' }}>{formatNumber(stats?.store?.pendingOrders)}</span>
               </div>
 
               {/* المتجر - الطلبات المقبولة */}
               <div className="glass-card stat-card turquoise">
                 <span className="stat-label">طلبات المتجر المقبولة</span>
-                <span className="stat-value" style={{ color: 'var(--accent-neon-green)', marginTop: '10px' }}>{stats?.store?.approvedOrders || 0}</span>
+                <span className="stat-value" style={{ color: 'var(--accent-neon-green)', marginTop: '10px' }}>{formatNumber(stats?.store?.approvedOrders)}</span>
               </div>
 
               {/* المتجر - الطلبات المرفوضة */}
               <div className="glass-card stat-card turquoise">
                 <span className="stat-label">طلبات المتجر المرفوضة</span>
-                <span className="stat-value" style={{ color: 'var(--accent-neon-red)', marginTop: '10px' }}>{stats?.store?.rejectedOrders || 0}</span>
+                <span className="stat-value" style={{ color: 'var(--accent-neon-red)', marginTop: '10px' }}>{formatNumber(stats?.store?.rejectedOrders)}</span>
               </div>
             </div>
 
@@ -1044,7 +1062,7 @@ export default function App() {
                     }}>
                       <span className="box-multiplier">{mult}</span>
                       <h3>Box {boxIndex}</h3>
-                      <div className="box-bets-value">{betsTotal.toFixed(1)} {liveRound?.currencyMode === "FREE_ONLY" ? "FREE" : "CASH"}</div>
+                      <div className="box-bets-value">{formatNumber(betsTotal, 1)} {liveRound?.currencyMode === "FREE_ONLY" ? "FREE" : "CASH"}</div>
                     </div>
                   );
                 })}
@@ -1063,11 +1081,11 @@ export default function App() {
             <div className="stats-grid" style={{ margin: "1.5rem 0" }}>
               <div className="glass-card stat-card gold">
                 <span className="stat-label">{t.freeCoins}</span>
-                <span className="stat-value">{myWallet.free.toFixed(1)}</span>
+                <span className="stat-value">{formatNumber(myWallet.free, 1)}</span>
               </div>
               <div className="glass-card stat-card green">
                 <span className="stat-label">{t.cashCoins}</span>
-                <span className="stat-value">{myWallet.cash.toFixed(2)}</span>
+                <span className="stat-value">{formatNumber(myWallet.cash, 2)}</span>
               </div>
               <div className="glass-card stat-card blue">
                 <span className="stat-label">{t.roundStatus}</span>
@@ -1190,8 +1208,8 @@ export default function App() {
                   { label: "نشطون", value: activeCount, color: "#22c55e" },
                   { label: "موقوف مؤقت", value: tempBannedCount, color: "#f59e0b" },
                   { label: "محظور نهائي", value: bannedCount, color: "#ef4444" },
-                  { label: "💎 إجمالي الماسات", value: Math.round(totalDiamonds).toLocaleString(), color: "#38bdf8" },
-                  { label: "🪙 إجمالي الكونزات", value: Math.round(totalCoins).toLocaleString(), color: "#f59e0b" },
+                  { label: "💎 إجمالي الماسات", value: Math.roundformatNumber(totalDiamonds), color: "#38bdf8" },
+                  { label: "🪙 إجمالي الكونزات", value: Math.roundformatNumber(totalCoins), color: "#f59e0b" },
                 ].map((card, i) => (
                   <div key={i} className="glass-card" style={{ padding: "0.8rem 1rem", borderLeft: `3px solid ${card.color}` }}>
                     <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: "0.2rem" }}>{card.label}</div>
@@ -1296,8 +1314,8 @@ export default function App() {
                                 ? <span style={{ fontFamily: "monospace" }}><span style={{ color: "var(--accent-gold)" }}>{u.countryCode || ""}</span> {u.phoneNumber}</span>
                                 : <span style={{ color: "var(--text-muted)" }}>—</span>}
                             </td>
-                            <td><strong style={{ color: "#38bdf8" }}>{(u.wallet?.freeBalance || 0).toLocaleString()}</strong></td>
-                            <td><strong style={{ color: "#f59e0b" }}>{(u.wallet?.cashBalance || 0).toLocaleString()}</strong></td>
+                            <td><strong style={{ color: "#38bdf8" }}>{formatNumber(u.wallet?.freeBalance || 0)}</strong></td>
+                            <td><strong style={{ color: "#f59e0b" }}>{formatNumber(u.wallet?.cashBalance || 0)}</strong></td>
                             <td>
                               <span style={{ fontSize: "0.83rem" }}>{statusEmoji} {statusLabel}</span>
                               {isTemp && u.banExpiresAt && (
@@ -1422,8 +1440,8 @@ export default function App() {
                     {[
                       ["الهاتف", selectedUser.phoneNumber ? `${selectedUser.countryCode || ""} ${selectedUser.phoneNumber}` : "—"],
                       ["Device ID", <span style={{ fontFamily: "monospace", fontSize: "0.7rem" }}>{selectedUser.deviceId || "—"}</span>],
-                      ["💎 الماسات", <strong style={{ color: "#38bdf8", fontSize: "1.1rem" }}>{(selectedUser.wallet?.freeBalance || 0).toLocaleString()}</strong>],
-                      ["🪙 الكونزات", <strong style={{ color: "#f59e0b", fontSize: "1.1rem" }}>{(selectedUser.wallet?.cashBalance || 0).toLocaleString()}</strong>],
+                      ["💎 الماسات", <strong style={{ color: "#38bdf8", fontSize: "1.1rem" }}>{formatNumber(selectedUser.wallet?.freeBalance || 0)}</strong>],
+                      ["🪙 الكونزات", <strong style={{ color: "#f59e0b", fontSize: "1.1rem" }}>{formatNumber(selectedUser.wallet?.cashBalance || 0)}</strong>],
                     ].map(([label, val], i) => (
                       <p key={i} style={{ margin: "0.3rem 0", fontSize: "0.86rem" }}><strong>{label}: </strong>{val}</p>
                     ))}
@@ -1499,11 +1517,11 @@ export default function App() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
                     <div style={{ padding: "1.1rem", borderRadius: "10px", background: "rgba(56,189,248,0.08)", border: "1px solid #38bdf8", textAlign: "center" }}>
                       <div style={{ fontSize: "0.82rem", color: "#38bdf8", marginBottom: "4px" }}>💎 رصيد الماسات</div>
-                      <div style={{ fontSize: "1.7rem", fontWeight: "700", color: "#38bdf8" }}>{(selectedUser.wallet?.freeBalance || 0).toLocaleString()}</div>
+                      <div style={{ fontSize: "1.7rem", fontWeight: "700", color: "#38bdf8" }}>{formatNumber(selectedUser.wallet?.freeBalance || 0)}</div>
                     </div>
                     <div style={{ padding: "1.1rem", borderRadius: "10px", background: "rgba(245,158,11,0.08)", border: "1px solid #f59e0b", textAlign: "center" }}>
                       <div style={{ fontSize: "0.82rem", color: "#f59e0b", marginBottom: "4px" }}>🪙 رصيد الكونزات</div>
-                      <div style={{ fontSize: "1.7rem", fontWeight: "700", color: "#f59e0b" }}>{(selectedUser.wallet?.cashBalance || 0).toLocaleString()}</div>
+                      <div style={{ fontSize: "1.7rem", fontWeight: "700", color: "#f59e0b" }}>{formatNumber(selectedUser.wallet?.cashBalance || 0)}</div>
                     </div>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
@@ -1702,10 +1720,10 @@ export default function App() {
                         <div>{d.user?.email || "Guest"}</div>
                         <div style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>ID: {d.userId}</div>
                       </td>
-                      <td><strong>{d.amount.toFixed(2)} CASH</strong></td>
+                      <td><strong>{formatNumber(d.amount, 2)} CASH</strong></td>
                       <td><span className={`badge ${d.status === "PENDING" ? "betting" : d.status === "APPROVED" ? "revealing" : "locked"}`}>{d.status}</span></td>
                       <td>{d.transactionRef || <span style={{ color: "var(--text-muted)" }}>Pending</span>}</td>
-                      <td>{new Date(d.createdAt).toLocaleString()}</td>
+                      <td>{new DateformatNumber(d.createdAt)}</td>
                       <td>
                         {d.status === "PENDING" && (
                           <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -1745,10 +1763,10 @@ export default function App() {
                         <div>{w.user?.email || "User"}</div>
                         <div style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>ID: {w.userId}</div>
                       </td>
-                      <td><strong>{w.amount.toFixed(2)} CASH</strong></td>
+                      <td><strong>{formatNumber(w.amount, 2)} CASH</strong></td>
                       <td><span className={`badge ${w.status === "PENDING" ? "betting" : w.status === "APPROVED" ? "revealing" : "locked"}`}>{w.status}</span></td>
                       <td>{w.transactionRef || <span style={{ color: "var(--text-muted)" }}>Pending</span>}</td>
-                      <td>{new Date(w.createdAt).toLocaleString()}</td>
+                      <td>{new DateformatNumber(w.createdAt)}</td>
                       <td>
                         {w.status === "PENDING" && (
                           <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -1965,8 +1983,8 @@ export default function App() {
                           <strong>{tData.title}</strong>
                           <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", marginTop: "2px" }}>{tData.description}</div>
                         </td>
-                        <td>{tData.goalCount.toLocaleString()}</td>
-                        <td><strong style={{ color: "var(--accent-gold)" }}>{tData.rewardAmount.toLocaleString()} {tData.rewardCurrency}</strong></td>
+                        <td>{formatNumber(tData.goalCount)}</td>
+                        <td><strong style={{ color: "var(--accent-gold)" }}>{formatNumber(tData.rewardAmount)} {tData.rewardCurrency}</strong></td>
                         <td>
                           {tData.linkUrl ? (
                             <a href={tData.linkUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#38bdf8", textDecoration: "underline", fontSize: "0.8rem" }}>
@@ -2037,12 +2055,12 @@ export default function App() {
                       <td><span className="badge ended">{l.poolType}</span></td>
                       <td>
                         <strong style={{ color: l.amountChange >= 0 ? "var(--accent-neon-green)" : "var(--accent-neon-red)" }}>
-                          {l.amountChange >= 0 ? "+" : ""}{l.amountChange.toFixed(2)}
+                          {l.amountChange >= 0 ? "+" : ""}{formatNumber(l.amountChange, 2)}
                         </strong>
                       </td>
                       <td>{l.type}</td>
                       <td style={{ fontSize: "0.8rem", fontFamily: "monospace" }}>{l.referenceId || "Admin Adjust"}</td>
-                      <td>{new Date(l.createdAt).toLocaleString()}</td>
+                      <td>{new DateformatNumber(l.createdAt)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2115,16 +2133,16 @@ export default function App() {
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                     <span style={{ color: "var(--text-muted)" }}>{t.initialPool}</span>
-                    <span>{simReport.initialPool.toFixed(2)}</span>
+                    <span>{formatNumber(simReport.initialPool, 2)}</span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                     <span style={{ color: "var(--text-muted)" }}>{t.finalPool}</span>
-                    <span>{simReport.finalPool.toFixed(2)}</span>
+                    <span>{formatNumber(simReport.finalPool, 2)}</span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
                     <span style={{ color: "var(--text-muted)" }}>{t.netProfit}</span>
                     <span style={{ color: simReport.netProfitLoss >= 0 ? "var(--accent-neon-green)" : "var(--accent-neon-red)" }}>
-                      {simReport.netProfitLoss >= 0 ? "+" : ""}{simReport.netProfitLoss.toFixed(2)} ({simReport.profitLossPct.toFixed(1)}%)
+                      {simReport.netProfitLoss >= 0 ? "+" : ""}{formatNumber(simReport.netProfitLoss, 2)} ({simReport.profitLossPct.toFixed(1)}%)
                     </span>
                   </div>
 
@@ -2206,8 +2224,8 @@ export default function App() {
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "4px" }}>
                 {lang === "ar" ? "الرصيد الحالي:" : "Current Balance:"}{" "}
                 {adjustType === "FREE" 
-                  ? `${(selectedUser.wallet?.freeBalance || 0).toLocaleString()} FREE`
-                  : `${(selectedUser.wallet?.cashBalance || 0).toLocaleString()} CASH`}
+                  ? `${formatNumber(selectedUser.wallet?.freeBalance || 0)} FREE`
+                  : `${formatNumber(selectedUser.wallet?.cashBalance || 0)} CASH`}
               </div>
             </div>
 
@@ -2518,15 +2536,15 @@ export default function App() {
                   <p style={{ margin: "0.35rem 0" }}><strong>{t.email}:</strong> {selectedUser.email || "حساب زائر (Guest)"}</p>
                   <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "العمر والجنس:" : "Age & Gender:"}</strong> {selectedUser.age || "N/A"} ({selectedUser.gender || "N/A"})</p>
                   <p style={{ margin: "0.35rem 0" }}><strong>{t.role}:</strong> <span className="badge ended" style={{ fontSize: "0.7rem" }}>{selectedUser.role}</span></p>
-                  <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "تاريخ التسجيل:" : "Registered At:"}</strong> {new Date(selectedUser.createdAt).toLocaleString()}</p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "تاريخ التسجيل:" : "Registered At:"}</strong> {new DateformatNumber(selectedUser.createdAt)}</p>
                   <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "الجولات والانتصارات:" : "Rounds Played / Won:"}</strong> {selectedUser.roundsPlayed} / {selectedUser.roundsWon}</p>
                 </div>
                 <div>
                   <h4 style={{ color: "var(--accent-gold)", marginBottom: "0.75rem" }}>{lang === "ar" ? "الأجهزة والأمان" : "Devices & Security"}</h4>
                   <p style={{ margin: "0.35rem 0" }}><strong>Device ID:</strong> <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontFamily: "monospace" }}>{selectedUser.deviceId || "N/A"}</span></p>
                   <p style={{ margin: "0.35rem 0" }}><strong>IP Address:</strong> <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{selectedUser.lastIp || "N/A"}</span></p>
-                  <p style={{ margin: "0.35rem 0" }}><strong>Wallet Free Balance:</strong> <strong style={{ color: "var(--accent-gold)" }}>{(selectedUser.wallet?.freeBalance || 0).toLocaleString()} FREE</strong></p>
-                  <p style={{ margin: "0.35rem 0" }}><strong>Wallet Cash Balance:</strong> <strong style={{ color: "var(--accent-neon-green)" }}>{(selectedUser.wallet?.cashBalance || 0).toLocaleString()} CASH</strong></p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>Wallet Free Balance:</strong> <strong style={{ color: "var(--accent-gold)" }}>{formatNumber(selectedUser.wallet?.freeBalance || 0)} FREE</strong></p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>Wallet Cash Balance:</strong> <strong style={{ color: "var(--accent-neon-green)" }}>{formatNumber(selectedUser.wallet?.cashBalance || 0)} CASH</strong></p>
                   
                   {/* SuperAdmin Purge Account Purging Card */}
                   {user?.role === "SUPERADMIN" && (
@@ -2596,7 +2614,7 @@ export default function App() {
                           <span className="badge ended" style={{ fontSize: "0.65rem", padding: "1px 4px", marginRight: lang === "en" ? "6px" : 0, marginLeft: lang === "ar" ? "6px" : 0 }}>{log.type}</span>
                           <span style={{ fontSize: "0.85rem" }}>{log.message}</span>
                         </div>
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new Date(log.date).toLocaleString()}</span>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new DateformatNumber(log.date)}</span>
                       </div>
                     ))}
                     {userLogs.activityLogs.length === 0 && (
@@ -2624,7 +2642,7 @@ export default function App() {
                           </span>
                           <span style={{ fontSize: "0.85rem" }}>{action.message}</span>
                         </div>
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new Date(action.date).toLocaleString()}</span>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new DateformatNumber(action.date)}</span>
                       </div>
                     ))}
                     {userLogs.adminActions.length === 0 && (
