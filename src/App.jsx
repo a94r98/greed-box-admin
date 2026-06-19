@@ -935,79 +935,70 @@ export default function App() {
             </div>
 
             <div className="stats-grid">
-              {/* 1. المستخدمين */}
+              {/* المستخدمين: متصلين الآن */}
               <div className="glass-card stat-card sky-blue">
-                <span className="stat-label">المستخدمين</span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
-                  <div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>متصلين الآن</div>
-                    <span className="stat-value" style={{ color: '#87CEEB' }}>{stats?.counts?.usersOnline || 0}</span>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>كل المستخدمين</div>
-                    <span className="stat-value">{stats?.counts?.users || 0}</span>
-                  </div>
-                </div>
+                <span className="stat-label">المستخدمين (متصلين الآن)</span>
+                <span className="stat-value" style={{ color: '#87CEEB', marginTop: '10px' }}>{stats?.counts?.usersOnline || 0}</span>
               </div>
 
-              {/* 2. الكونزات */}
+              {/* المستخدمين: كل المستخدمين */}
+              <div className="glass-card stat-card sky-blue">
+                <span className="stat-label">كل المستخدمين</span>
+                <span className="stat-value" style={{ marginTop: '10px' }}>{stats?.counts?.users || 0}</span>
+              </div>
+
+              {/* الكونزات */}
               <div className="glass-card stat-card gold">
-                <span className="stat-label">الكونزات</span>
-                <div style={{ marginTop: '10px' }}>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>جميع كونزات المستخدمين</div>
-                  <span className="stat-value">{stats?.counts?.totalUserCoins?.toFixed(2) || "0.00"}</span>
-                </div>
+                <span className="stat-label">جميع كونزات المستخدمين</span>
+                <span className="stat-value" style={{ marginTop: '10px' }}>{stats?.counts?.totalUserCoins?.toFixed(2) || "0.00"}</span>
               </div>
 
-              {/* 3. الماسات */}
+              {/* الماسات */}
               <div className="glass-card stat-card turquoise">
-                <span className="stat-label">الماسات</span>
-                <div style={{ marginTop: '10px' }}>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>جميع ماسات المستخدمين</div>
-                  <span className="stat-value" style={{ color: '#40E0D0' }}>{stats?.counts?.totalUserDiamonds?.toFixed(2) || "0.00"}</span>
-                </div>
+                <span className="stat-label">جميع ماسات المستخدمين</span>
+                <span className="stat-value" style={{ color: '#40E0D0', marginTop: '10px' }}>{stats?.counts?.totalUserDiamonds?.toFixed(2) || "0.00"}</span>
               </div>
 
-              {/* 4. الصندوق الاسود */}
+              {/* الصندوق الاسود - كونزات */}
               <div className="glass-card stat-card sky-blue">
-                <span className="stat-label">الصندوق الأسود (الخزينة)</span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
-                  <div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>كونزات</div>
-                    <span className="stat-value" style={{ color: 'var(--accent-gold)' }}>{stats?.pools?.cash?.toFixed(2) || "0.00"}</span>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ماسات</div>
-                    <span className="stat-value" style={{ color: '#40E0D0' }}>{stats?.pools?.free?.toFixed(2) || "0.00"}</span>
-                  </div>
-                </div>
+                <span className="stat-label">الصندوق الأسود (الخزينة) - كونزات</span>
+                <span className="stat-value" style={{ color: 'var(--accent-gold)', marginTop: '10px' }}>{stats?.pools?.cash?.toFixed(2) || "0.00"}</span>
               </div>
 
-              {/* 5. المتجر */}
-              <div className="glass-card stat-card turquoise" style={{ gridColumn: '1 / -1' }}>
-                <span className="stat-label">المتجر</span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', flexWrap: 'wrap', gap: '1rem' }}>
-                  <div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>جميع المنتجات</div>
-                    <span className="stat-value">{stats?.store?.productsCount || 0}</span>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>جميع الطلبات</div>
-                    <span className="stat-value">{stats?.store?.totalOrders || 0}</span>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>المعلقة</div>
-                    <span className="stat-value" style={{ color: 'var(--accent-gold)' }}>{stats?.store?.pendingOrders || 0}</span>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>المقبولة</div>
-                    <span className="stat-value" style={{ color: 'var(--accent-neon-green)' }}>{stats?.store?.approvedOrders || 0}</span>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>المرفوضة</div>
-                    <span className="stat-value" style={{ color: 'var(--accent-neon-red)' }}>{stats?.store?.rejectedOrders || 0}</span>
-                  </div>
-                </div>
+              {/* الصندوق الاسود - ماسات */}
+              <div className="glass-card stat-card sky-blue">
+                <span className="stat-label">الصندوق الأسود (الخزينة) - ماسات</span>
+                <span className="stat-value" style={{ color: '#40E0D0', marginTop: '10px' }}>{stats?.pools?.free?.toFixed(2) || "0.00"}</span>
+              </div>
+
+              {/* المتجر - جميع المنتجات */}
+              <div className="glass-card stat-card turquoise">
+                <span className="stat-label">المتجر - جميع المنتجات</span>
+                <span className="stat-value" style={{ marginTop: '10px' }}>{stats?.store?.productsCount || 0}</span>
+              </div>
+
+              {/* المتجر - جميع الطلبات */}
+              <div className="glass-card stat-card turquoise">
+                <span className="stat-label">المتجر - جميع الطلبات</span>
+                <span className="stat-value" style={{ marginTop: '10px' }}>{stats?.store?.totalOrders || 0}</span>
+              </div>
+
+              {/* المتجر - الطلبات المعلقة */}
+              <div className="glass-card stat-card turquoise">
+                <span className="stat-label">طلبات المتجر المعلقة</span>
+                <span className="stat-value" style={{ color: 'var(--accent-gold)', marginTop: '10px' }}>{stats?.store?.pendingOrders || 0}</span>
+              </div>
+
+              {/* المتجر - الطلبات المقبولة */}
+              <div className="glass-card stat-card turquoise">
+                <span className="stat-label">طلبات المتجر المقبولة</span>
+                <span className="stat-value" style={{ color: 'var(--accent-neon-green)', marginTop: '10px' }}>{stats?.store?.approvedOrders || 0}</span>
+              </div>
+
+              {/* المتجر - الطلبات المرفوضة */}
+              <div className="glass-card stat-card turquoise">
+                <span className="stat-label">طلبات المتجر المرفوضة</span>
+                <span className="stat-value" style={{ color: 'var(--accent-neon-red)', marginTop: '10px' }}>{stats?.store?.rejectedOrders || 0}</span>
               </div>
             </div>
 
