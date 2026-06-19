@@ -1030,6 +1030,13 @@ export default function App() {
               </div>
             </div>
 
+          </div>
+        )}
+
+        {/* Playable simulator for game testing */}
+        {activeTab === "play" && (
+          <div>
+            <h2>{t.playGame}</h2>
             <div className="glass-card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h3>{t.roundStatus}</h3>
@@ -1081,13 +1088,6 @@ export default function App() {
                 {t.overrideTip}
               </p>
             </div>
-          </div>
-        )}
-
-        {/* Playable simulator for game testing */}
-        {activeTab === "play" && (
-          <div>
-            <h2>{t.playGame}</h2>
             <div className="stats-grid" style={{ margin: "1.5rem 0" }}>
               <div className="glass-card stat-card gold">
                 <span className="stat-label">{t.freeCoins}</span>
