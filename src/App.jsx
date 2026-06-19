@@ -33,6 +33,9 @@ const TRANSLATIONS = {
     pool: "سجل الخزينة",
     simulation: "محاكاة النظام",
     playGame: "قسم اللعبة 🎮",
+    profits: "أرباحي 💰",
+    withdrawProfit: "سحب الأرباح",
+    totalProfits: "إجمالي الأرباح",
     logout: "تسجيل الخروج",
     loginTitle: "تسجيل دخول الإدارة",
     email: "البريد الإلكتروني",
@@ -134,6 +137,9 @@ const TRANSLATIONS = {
     pool: "Pool Logs",
     simulation: "Simulation Engine",
     playGame: "Game Section 🎮",
+    profits: "My Profits 💰",
+    withdrawProfit: "Withdraw Profit",
+    totalProfits: "Total Profits",
     logout: "Logout",
     loginTitle: "Admin Portal Login",
     email: "Email Address",
@@ -241,6 +247,13 @@ export default function App() {
 
   // Live Stats & Sockets state
   const [stats, setStats] = useState(null);
+
+  // Admin Profits state
+  const [profitLogs, setProfitLogs] = useState([]);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [withdrawPoolType, setWithdrawPoolType] = useState("CASH");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+
 
   // Rounds History state
   const [pastRounds, setPastRounds] = useState([]);
@@ -434,6 +447,7 @@ export default function App() {
     if (!token) return;
     if (activeTab === "users") fetchUsers();
     if (activeTab === "play") fetchPastRounds();
+    if (activeTab === "profits") fetchProfitLogs();
     if (activeTab === "deposits") fetchDeposits();
     if (activeTab === "withdrawals") fetchWithdrawals();
     if (activeTab === "config") fetchConfig();
@@ -496,6 +510,34 @@ export default function App() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "API error");
     return data;
+  };
+
+  
+  const fetchProfitLogs = () => {
+    apiCall("/admin/profits/logs")
+      .then(d => setProfitLogs(d.logs || []))
+      .catch(console.error);
+  };
+
+  const handleWithdrawProfit = async (e) => {
+    e.preventDefault();
+    if (!withdrawAmount || isNaN(withdrawAmount) || Number(withdrawAmount) <= 0) {
+      alert("يرجى إدخال مبلغ صحيح");
+      return;
+    }
+    try {
+      const res = await apiCall("/admin/pool/withdraw", "POST", {
+        poolType: withdrawPoolType,
+        amount: Number(withdrawAmount)
+      });
+      alert(res.message || "تم سحب الأرباح بنجاح!");
+      setShowWithdrawModal(false);
+      setWithdrawAmount("");
+      fetchStats();
+      if (activeTab === "profits") fetchProfitLogs();
+    } catch (err) {
+      alert(err.error || "حدث خطأ أثناء سحب الأرباح");
+    }
   };
 
   const fetchStats = () => apiCall("/admin/stats").then(setStats).catch(console.error);
@@ -939,6 +981,7 @@ export default function App() {
         <ul className="nav-links">
           <li className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => { setActiveTab("dashboard"); setShowMobileSidebar(false); }}>{t.dashboard}</li>
           <li className={`nav-item ${activeTab === "play" ? "active" : ""}`} onClick={() => { setActiveTab("play"); fetchMyWallet(); setShowMobileSidebar(false); }}>{t.playGame}</li>
+          <li className={`nav-item ${activeTab === "profits" ? "active" : ""}`} onClick={() => { setActiveTab("profits"); setShowMobileSidebar(false); }}>{t.profits}</li>
           <li className={`nav-item ${activeTab === "users" ? "active" : ""}`} onClick={() => { setActiveTab("users"); setShowMobileSidebar(false); }}>{t.users}</li>
           <li className={`nav-item ${activeTab === "deposits" ? "active" : ""}`} onClick={() => { setActiveTab("deposits"); setShowMobileSidebar(false); }}>{t.deposits}</li>
           <li className={`nav-item ${activeTab === "withdrawals" ? "active" : ""}`} onClick={() => { setActiveTab("withdrawals"); setShowMobileSidebar(false); }}>{t.withdrawals}</li>
@@ -2750,6 +2793,69 @@ export default function App() {
                 )}
               </div>
             )}
+
+
+        {/* My Profits Tab */}
+        {activeTab === "profits" && (
+          <div className="glass-card">
+            <h2>{t.profits}</h2>
+            <div className="table-container" style={{ marginTop: "1rem" }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>المعرف (ID)</th>
+                    <th>النوع</th>
+                    <th>مبلغ السحب (الربح)</th>
+                    <th>التاريخ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {profitLogs.map(log => (
+                    <tr key={log.id}>
+                      <td style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>{log.id.substring(0, 8)}...</td>
+                      <td>{log.poolType === "CASH" ? "كونزات" : "ماسات"}</td>
+                      <td style={{ color: "var(--accent-neon-green)", fontWeight: "bold" }}>{formatNumber(Math.abs(log.amountChange))}</td>
+                      <td>{new Date(log.createdAt).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                  {profitLogs.length === 0 && (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: "center", color: "var(--text-muted)" }}>لا توجد عمليات سحب للأرباح.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Withdraw Profit Modal */}
+        {showWithdrawModal && (
+          <div className="modal-overlay" onClick={() => setShowWithdrawModal(false)}>
+            <div className="modal-content glass-card" onClick={e => e.stopPropagation()}>
+              <h2>{t.withdrawProfit} ({withdrawPoolType === "CASH" ? "كونزات" : "ماسات"})</h2>
+              <p style={{ color: "var(--text-muted)", marginBottom: "1.5rem", fontSize: "0.9rem" }}>
+                سيتم خصم هذا المبلغ من الصندوق الأسود وتسجيله كأرباح خاصة بالإدارة.
+              </p>
+              <form onSubmit={handleWithdrawProfit}>
+                <div className="form-group">
+                  <label>مبلغ السحب:</label>
+                  <input
+                    type="number"
+                    value={withdrawAmount}
+                    onChange={e => setWithdrawAmount(e.target.value)}
+                    required
+                    min="1"
+                  />
+                </div>
+                <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>تأكيد السحب</button>
+                  <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowWithdrawModal(false)}>إلغاء</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
           </div>
         </div>
       )}
