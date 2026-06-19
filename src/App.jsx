@@ -968,7 +968,12 @@ export default function App() {
               {/* الكونزات */}
               <div className="glass-card stat-card gold">
                 <span className="stat-label">جميع كونزات المستخدمين</span>
-                <span className="stat-value" style={{ marginTop: '10px' }}>{formatNumber(stats?.counts?.totalUserCoins)}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px' }}>
+                  <span className="stat-value">{formatNumber(stats?.counts?.totalUserCoins)}</span>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    ≈ ${( (stats?.counts?.totalUserCoins || 0) / 3000000 ).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
               </div>
 
               {/* الماسات */}
@@ -980,7 +985,12 @@ export default function App() {
               {/* الصندوق الاسود - كونزات */}
               <div className="glass-card stat-card sky-blue">
                 <span className="stat-label">الصندوق الأسود (الخزينة) - كونزات</span>
-                <span className="stat-value" style={{ color: 'var(--accent-gold)', marginTop: '10px' }}>{formatNumber(stats?.pools?.cash)}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px' }}>
+                  <span className="stat-value" style={{ color: 'var(--accent-gold)' }}>{formatNumber(stats?.pools?.cash)}</span>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                    ≈ ${( (stats?.pools?.cash || 0) / 3000000 ).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
               </div>
 
               {/* الصندوق الاسود - ماسات */}
