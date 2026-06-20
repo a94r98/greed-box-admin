@@ -1238,33 +1238,6 @@ export default function App() {
                 {t.overrideTip}
               </p>
             </div>
-            <div className="stats-grid" style={{ margin: "1.5rem 0" }}>
-              <div className="glass-card stat-card gold">
-                <span className="stat-label">{t.freeCoins}</span>
-                <span className="stat-value">{formatNumber(myWallet.free, 1)}</span>
-              </div>
-              <div className="glass-card stat-card green">
-                <span className="stat-label">{t.cashCoins}</span>
-                <span className="stat-value">{formatNumber(myWallet.cash, 2)}</span>
-              </div>
-              <div className="glass-card stat-card blue">
-                <span className="stat-label">{t.roundStatus}</span>
-                <span className="stat-value" style={{ fontSize: "1.35rem" }}>
-                  {liveRound?.status || "ENDED"} ({getRemainingSecondsStr()})
-                </span>
-              </div>
-            </div>
-
-            {/* Past outcomes timeline */}
-            <div className="glass-card">
-              <span className="stat-label">{t.recentResults}</span>
-              <div style={{ display: "flex", gap: "0.5rem", overflowX: "auto", padding: "0.5rem 0", marginTop: "0.5rem" }}>
-                {recentOutcomes.map((out, idx) => (
-                  <span key={idx} className="badge ended" style={{ fontSize: "0.85rem", minWidth: "50px", textAlign: "center" }}>{out}</span>
-                ))}
-                {recentOutcomes.length === 0 && <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>No rounds played yet.</span>}
-              </div>
-            </div>
 
           </div>
         )}
