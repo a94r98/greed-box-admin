@@ -551,6 +551,23 @@ function App() {
   };
 
 
+  const fetchStoreData = async () => {
+    try {
+      const [pRes, mRes, oRes] = await Promise.all([
+        apiCall("/admin/store/products"),
+        apiCall("/admin/store/payment-methods"),
+        apiCall("/admin/store/orders")
+      ]);
+      setProducts(pRes?.products || []);
+      setPaymentMethods(mRes?.methods || []);
+      setStoreOrders(oRes?.orders || []);
+    } catch (err) {
+      console.error("Failed to fetch store data:", err);
+    }
+  };
+
+
+
   
   const handleAddFinanceLog = async (e) => {
     e.preventDefault();
