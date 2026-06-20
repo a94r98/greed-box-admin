@@ -48,7 +48,11 @@ body {
 /* ════════════════════════════════════════
    MAIN LAYOUT
 ════════════════════════════════════════ */
-.admin-app { display: flex; min-height: 100vh; width: 100%; overflow: hidden; }
+.admin-app {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
 
 .sidebar {
   width: var(--sidebar-width);
@@ -64,18 +68,18 @@ body {
   height: 100vh;
   overflow-y: auto;
   z-index: 100;
-  inset-inline-end: 0;
+  inset-inline-start: 0;   /* RTL Arabic: inline-start = RIGHT side */
   transition: var(--transition-smooth);
 }
 
 .main-content {
   flex: 1;
-  width: calc(100% - var(--sidebar-width));
-  margin-inline-end: var(--sidebar-width);
+  min-width: 0;
+  margin-inline-start: var(--sidebar-width); /* RTL: inline-start = margin-right */
   padding: var(--content-pad);
   min-height: 100vh;
-  overflow-x: hidden;
   transition: var(--transition-smooth);
+  box-sizing: border-box;
 }
 
 /* ════════════════════════════════════════
@@ -429,25 +433,25 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 @media (max-width: 768px) {
   :root { --content-pad: 0.9rem; --card-radius: 12px; }
 
-  /* Sidebar off-screen (RTL — slides right) */
+  /* Sidebar off-screen to the right, then slides in from right (RTL) */
   .sidebar {
     width: 260px;
-    inset-inline-end: -270px;
+    inset-inline-start: -270px;  /* start off-screen to the right in RTL */
     padding: 1.25rem 0.9rem;
     z-index: 200;
   }
 
   .sidebar.open {
-    inset-inline-end: 0;
+    inset-inline-start: 0;
     box-shadow: -4px 0 30px rgba(0,0,0,0.35);
   }
 
-  /* Content full-width */
+  /* Content full-width on mobile */
   .main-content {
-    margin-inline-end: 0 !important;
-    width: 100% !important;
+    margin-inline-start: 0 !important;
     padding: var(--content-pad);
   }
+
 
   /* Mobile top bar */
   .mobile-header {
