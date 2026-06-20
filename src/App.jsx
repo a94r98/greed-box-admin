@@ -261,7 +261,7 @@ function App() {
   const [products, setProducts] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [storeOrders, setStoreOrders] = useState([]);
-  const [storeTab, setStoreTab] = useState("products"); // products, payment_methods, orders
+  const [storeTab, setStoreTab] = useState("products");
   
   const [showProductModal, setShowProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -271,6 +271,16 @@ function App() {
   
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+
+  // Shipping & Store Orders tab state
+  const [shippingRequests, setShippingRequests] = useState([]);
+  const [shippingOrdersFilter, setShippingOrdersFilter] = useState("ALL");
+  const [storeOrdersFilter, setStoreOrdersFilter] = useState("ALL");
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [showShippingDetailModal, setShowShippingDetailModal] = useState(false);
+  const [selectedShippingReq, setSelectedShippingReq] = useState(null);
+  const [showStoreOrderDetailModal, setShowStoreOrderDetailModal] = useState(false);
+  const [selectedStoreOrder, setSelectedStoreOrder] = useState(null);
 
   const [newFinanceLog, setNewFinanceLog] = useState({ type: "EXPENSE", category: "MANUAL", amount: "", currency: "IQD", description: "" });
   const [showFinanceModal, setShowFinanceModal] = useState(false);
@@ -478,6 +488,7 @@ function App() {
     if (activeTab === "tasks") fetchTasks();
     if (activeTab === "finance") fetchFinanceStats();
     if (activeTab === "store") fetchStoreData();
+    if (activeTab === "shipping") fetchShippingData();
 
     if (activeTab === "pool") fetchPoolLogs();
   }, [activeTab, token]);
@@ -566,9 +577,54 @@ function App() {
     }
   };
 
+  const fetchShippingData = async () => {
+    setShippingLoading(true);
+    try {
+      const [shRes, oRes] = await Promise.all([
+        apiCall("/admin/shipping/requests").catch(() => ({ requests: [] })),
+        apiCall("/admin/store/orders").catch(() => ({ orders: [] }))
+      ]);
+      setShippingRequests(shRes?.requests || []);
+      setStoreOrders(oRes?.orders || []);
+    } catch (err) {
+      console.error("Failed to fetch shipping data:", err);
+    } finally {
+      setShippingLoading(false);
+    }
+  };
 
+  const handleApproveShipping = async (id) => {
+    try {
+      await apiCall(`/admin/shipping/requests/${id}/approve`, "POST", { adminNote: "تمت الموافقة" });
+      fetchShippingData();
+    } catch (err) { alert("فشل: " + err.message); }
+  };
 
-  
+  const handleRejectShipping = async (id) => {
+    const reason = prompt("سبب الرفض:");
+    if (reason === null) return;
+    try {
+      await apiCall(`/admin/shipping/requests/${id}/reject`, "POST", { adminNote: reason });
+      fetchShippingData();
+    } catch (err) { alert("فشل: " + err.message); }
+  };
+
+  const handleApproveStoreOrderFromShipping = async (id) => {
+    try {
+      await apiCall(`/admin/store/orders/${id}/approve`, "POST", {});
+      fetchShippingData();
+    } catch (err) { alert("فشل: " + err.message); }
+  };
+
+  const handleRejectStoreOrderFromShipping = async (id) => {
+    const reason = prompt("سبب الرفض:");
+    if (reason === null) return;
+    try {
+      await apiCall(`/admin/store/orders/${id}/reject`, "POST", { rejectionReason: reason });
+      fetchShippingData();
+    } catch (err) { alert("فشل: " + err.message); }
+  };
+
   const handleAddFinanceLog = async (e) => {
     e.preventDefault();
     if (!newFinanceLog.amount) return;
@@ -2804,13 +2860,214 @@ function App() {
         </div>
       )}
 
-        {/* Shipping & Store Orders Tab */}
-        {activeTab === "shipping" && (
-          <div className="glass-card">
-            <h2>🚚 طلبات المتجر و الشحن</h2>
-            <p style={{ marginTop: "1rem", color: "var(--text-muted)" }}>هذا القسم قيد التطوير...</p>
-          </div>
-        )}
+        {activeTab === "shipping" && (() => {
+          // Compute stats
+          const shTotal = shippingRequests.length;
+          const shPending = shippingRequests.filter(r => r.status === "PENDING").length;
+          const shApproved = shippingRequests.filter(r => r.status === "APPROVED").length;
+          const shRejected = shippingRequests.filter(r => r.status === "REJECTED").length;
+
+          const orTotal = storeOrders.length;
+          const orPending = storeOrders.filter(r => r.status === "PENDING").length;
+          const orApproved = storeOrders.filter(r => ["DELIVERED","APPROVED","COMPLETED"].includes(r.status)).length;
+          const orRejected = storeOrders.filter(r => r.status === "REJECTED").length;
+
+          const filteredShipping = shippingOrdersFilter === "ALL"
+            ? shippingRequests
+            : shippingRequests.filter(r => r.status === shippingOrdersFilter);
+
+          const filteredStore = storeOrdersFilter === "ALL"
+            ? storeOrders
+            : storeOrders.filter(r =>
+                storeOrdersFilter === "APPROVED"
+                  ? ["DELIVERED","APPROVED","COMPLETED"].includes(r.status)
+                  : r.status === storeOrdersFilter
+              );
+
+          return (
+            <div>
+              {/* Header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.5rem" }}>
+                <h2>🚚 طلبات المتجر والشحن</h2>
+                <button className="btn btn-secondary" onClick={fetchShippingData} disabled={shippingLoading}>
+                  {shippingLoading ? "جاري التحديث..." : "🔄 تحديث"}
+                </button>
+              </div>
+
+              {/* ══ SHIPPING SECTION ══ */}
+              <div className="glass-card" style={{ marginBottom: "1.5rem", background: "linear-gradient(135deg, rgba(0,180,216,0.06) 0%, rgba(56,189,248,0.06) 100%)", border: "1px solid rgba(0,180,216,0.3)" }}>
+                <h3 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>📦 طلبات الشحن</h3>
+
+                {/* Shipping Stats */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.85rem", marginBottom: "1.25rem" }}>
+                  {[
+                    { label: "إجمالي طلبات الشحن", value: shTotal, color: "var(--accent-neon-blue)", filter: "ALL" },
+                    { label: "⏳ معلقة", value: shPending, color: "var(--accent-gold)", filter: "PENDING" },
+                    { label: "✅ مقبولة", value: shApproved, color: "var(--accent-neon-green)", filter: "APPROVED" },
+                    { label: "❌ مرفوضة", value: shRejected, color: "var(--accent-neon-red)", filter: "REJECTED" },
+                  ].map((s, i) => (
+                    <div key={i}
+                      onClick={() => setShippingOrdersFilter(s.filter)}
+                      style={{
+                        background: shippingOrdersFilter === s.filter ? `${s.color}18` : "rgba(255,255,255,0.6)",
+                        border: `2px solid ${shippingOrdersFilter === s.filter ? s.color : "transparent"}`,
+                        borderRadius: "12px", padding: "0.9rem 1rem",
+                        cursor: "pointer", textAlign: "center", transition: "all 0.2s"
+                      }}>
+                      <div style={{ fontSize: "1.6rem", fontWeight: "700", color: s.color }}>{s.value}</div>
+                      <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Shipping Table */}
+                <div className="table-responsive">
+                  <table style={{ minWidth: "700px" }}>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>المستخدم</th>
+                        <th>المنتج / الطلب</th>
+                        <th>الكمية</th>
+                        <th>العنوان</th>
+                        <th>الهاتف</th>
+                        <th>السعر (كونز)</th>
+                        <th>الحالة</th>
+                        <th>التاريخ</th>
+                        <th>إجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredShipping.length === 0 ? (
+                        <tr><td colSpan="10" style={{ textAlign: "center", padding: "2rem", color: "var(--text-muted)" }}>لا توجد طلبات شحن</td></tr>
+                      ) : filteredShipping.map((req, idx) => (
+                        <tr key={req.id}>
+                          <td style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>{idx + 1}</td>
+                          <td>
+                            <div style={{ fontWeight: "600" }}>{req.user?.username || req.user?.publicId || "-"}</div>
+                            <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{req.user?.phone || ""}</div>
+                          </td>
+                          <td style={{ maxWidth: "160px" }}>{req.productName}</td>
+                          <td>{req.quantity}</td>
+                          <td style={{ maxWidth: "140px", fontSize: "0.82rem" }}>{req.address}</td>
+                          <td>{req.phone || "-"}</td>
+                          <td style={{ color: "var(--accent-gold)", fontWeight: "600" }}>{req.priceCoins > 0 ? req.priceCoins.toLocaleString() : "مجاني"}</td>
+                          <td>
+                            <span className={`badge ${req.status === "PENDING" ? "calculating" : req.status === "APPROVED" ? "active" : "locked"}`}>
+                              {req.status === "PENDING" ? "معلق" : req.status === "APPROVED" ? "مقبول" : "مرفوض"}
+                            </span>
+                          </td>
+                          <td style={{ fontSize: "0.76rem", color: "var(--text-muted)" }}>{new Date(req.createdAt).toLocaleString("ar-IQ")}</td>
+                          <td>
+                            {req.status === "PENDING" && (
+                              <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                                <button className="btn btn-success" style={{ padding: "0.3rem 0.6rem", fontSize: "0.72rem" }}
+                                  onClick={() => handleApproveShipping(req.id)}>✅ قبول</button>
+                                <button className="btn btn-danger" style={{ padding: "0.3rem 0.6rem", fontSize: "0.72rem" }}
+                                  onClick={() => handleRejectShipping(req.id)}>❌ رفض</button>
+                              </div>
+                            )}
+                            {req.status !== "PENDING" && (
+                              <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{req.adminNote || "-"}</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* ══ STORE ORDERS SECTION ══ */}
+              <div className="glass-card" style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.06) 0%, rgba(56,189,248,0.06) 100%)", border: "1px solid rgba(139,92,246,0.3)" }}>
+                <h3 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>🛒 طلبات المتجر</h3>
+
+                {/* Store Stats */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.85rem", marginBottom: "1.25rem" }}>
+                  {[
+                    { label: "إجمالي طلبات المتجر", value: orTotal, color: "#a78bfa", filter: "ALL" },
+                    { label: "⏳ معلقة", value: orPending, color: "var(--accent-gold)", filter: "PENDING" },
+                    { label: "✅ مسلّمة", value: orApproved, color: "var(--accent-neon-green)", filter: "APPROVED" },
+                    { label: "❌ مرفوضة", value: orRejected, color: "var(--accent-neon-red)", filter: "REJECTED" },
+                  ].map((s, i) => (
+                    <div key={i}
+                      onClick={() => setStoreOrdersFilter(s.filter)}
+                      style={{
+                        background: storeOrdersFilter === s.filter ? `${s.color}18` : "rgba(255,255,255,0.6)",
+                        border: `2px solid ${storeOrdersFilter === s.filter ? s.color : "transparent"}`,
+                        borderRadius: "12px", padding: "0.9rem 1rem",
+                        cursor: "pointer", textAlign: "center", transition: "all 0.2s"
+                      }}>
+                      <div style={{ fontSize: "1.6rem", fontWeight: "700", color: s.color }}>{s.value}</div>
+                      <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Store Orders Table */}
+                <div className="table-responsive">
+                  <table style={{ minWidth: "750px" }}>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>المستخدم</th>
+                        <th>المنتج</th>
+                        <th>السعر (كونز)</th>
+                        <th>ملاحظة المستخدم</th>
+                        <th>الحالة</th>
+                        <th>تفاصيل التسليم</th>
+                        <th>التاريخ</th>
+                        <th>إجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredStore.length === 0 ? (
+                        <tr><td colSpan="9" style={{ textAlign: "center", padding: "2rem", color: "var(--text-muted)" }}>لا توجد طلبات</td></tr>
+                      ) : filteredStore.map((order, idx) => (
+                        <tr key={order.id}>
+                          <td style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>{idx + 1}</td>
+                          <td>
+                            <div style={{ fontWeight: "600" }}>{order.user?.username || order.user?.publicId || "-"}</div>
+                          </td>
+                          <td style={{ maxWidth: "150px" }}>
+                            <div style={{ fontWeight: "500" }}>{order.product?.name || "-"}</div>
+                            <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>{order.product?.category || ""}</div>
+                          </td>
+                          <td style={{ color: "var(--accent-gold)", fontWeight: "600" }}>{order.priceCoins?.toLocaleString() || "-"}</td>
+                          <td style={{ maxWidth: "140px", fontSize: "0.8rem" }}>{order.userNotes || "-"}</td>
+                          <td>
+                            <span className={`badge ${
+                              order.status === "PENDING" ? "calculating"
+                              : ["DELIVERED","APPROVED","COMPLETED"].includes(order.status) ? "active"
+                              : "locked"
+                            }`}>
+                              {order.status === "PENDING" ? "معلق" : ["DELIVERED","APPROVED","COMPLETED"].includes(order.status) ? "مسلّم" : "مرفوض"}
+                            </span>
+                          </td>
+                          <td style={{ fontSize: "0.8rem", maxWidth: "140px" }}>{order.deliveryDetails || order.rejectionReason || "-"}</td>
+                          <td style={{ fontSize: "0.76rem", color: "var(--text-muted)" }}>{new Date(order.createdAt).toLocaleString("ar-IQ")}</td>
+                          <td>
+                            {order.status === "PENDING" && (
+                              <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                                <button className="btn btn-success" style={{ padding: "0.3rem 0.6rem", fontSize: "0.72rem" }}
+                                  onClick={() => handleApproveStoreOrderFromShipping(order.id)}>✅ تسليم</button>
+                                <button className="btn btn-danger" style={{ padding: "0.3rem 0.6rem", fontSize: "0.72rem" }}
+                                  onClick={() => handleRejectStoreOrderFromShipping(order.id)}>❌ رفض</button>
+                              </div>
+                            )}
+                            {order.status !== "PENDING" && (
+                              <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>مكتمل</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Leaderboard Tab */}
         {activeTab === "leaderboard" && (
