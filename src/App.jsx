@@ -1828,7 +1828,7 @@ export default function App() {
                       <td><strong>{formatNumber(d.amount, 2)} CASH</strong></td>
                       <td><span className={`badge ${d.status === "PENDING" ? "betting" : d.status === "APPROVED" ? "revealing" : "locked"}`}>{d.status}</span></td>
                       <td>{d.transactionRef || <span style={{ color: "var(--text-muted)" }}>Pending</span>}</td>
-                      <td>{new DateformatNumber(d.createdAt)}</td>
+                      <td>{new Date(d.createdAt).toLocaleString()}</td>
                       <td>
                         {d.status === "PENDING" && (
                           <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -1871,7 +1871,7 @@ export default function App() {
                       <td><strong>{formatNumber(w.amount, 2)} CASH</strong></td>
                       <td><span className={`badge ${w.status === "PENDING" ? "betting" : w.status === "APPROVED" ? "revealing" : "locked"}`}>{w.status}</span></td>
                       <td>{w.transactionRef || <span style={{ color: "var(--text-muted)" }}>Pending</span>}</td>
-                      <td>{new DateformatNumber(w.createdAt)}</td>
+                      <td>{new Date(w.createdAt).toLocaleString()}</td>
                       <td>
                         {w.status === "PENDING" && (
                           <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -2165,7 +2165,7 @@ export default function App() {
                       </td>
                       <td>{l.type}</td>
                       <td style={{ fontSize: "0.8rem", fontFamily: "monospace" }}>{l.referenceId || "Admin Adjust"}</td>
-                      <td>{new DateformatNumber(l.createdAt)}</td>
+                      <td>{new Date(l.createdAt).toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2641,7 +2641,7 @@ export default function App() {
                   <p style={{ margin: "0.35rem 0" }}><strong>{t.email}:</strong> {selectedUser.email || "حساب زائر (Guest)"}</p>
                   <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "العمر والجنس:" : "Age & Gender:"}</strong> {selectedUser.age || "N/A"} ({selectedUser.gender || "N/A"})</p>
                   <p style={{ margin: "0.35rem 0" }}><strong>{t.role}:</strong> <span className="badge ended" style={{ fontSize: "0.7rem" }}>{selectedUser.role}</span></p>
-                  <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "تاريخ التسجيل:" : "Registered At:"}</strong> {new DateformatNumber(selectedUser.createdAt)}</p>
+                  <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "تاريخ التسجيل:" : "Registered At:"}</strong> {new Date(selectedUser.createdAt).toLocaleString()}</p>
                   <p style={{ margin: "0.35rem 0" }}><strong>{lang === "ar" ? "الجولات والانتصارات:" : "Rounds Played / Won:"}</strong> {selectedUser.roundsPlayed} / {selectedUser.roundsWon}</p>
                 </div>
                 <div>
@@ -2719,7 +2719,7 @@ export default function App() {
                           <span className="badge ended" style={{ fontSize: "0.65rem", padding: "1px 4px", marginRight: lang === "en" ? "6px" : 0, marginLeft: lang === "ar" ? "6px" : 0 }}>{log.type}</span>
                           <span style={{ fontSize: "0.85rem" }}>{log.message}</span>
                         </div>
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new DateformatNumber(log.date)}</span>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new Date(log.date).toLocaleString()}</span>
                       </div>
                     ))}
                     {userLogs.activityLogs.length === 0 && (
@@ -2747,7 +2747,7 @@ export default function App() {
                           </span>
                           <span style={{ fontSize: "0.85rem" }}>{action.message}</span>
                         </div>
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new DateformatNumber(action.date)}</span>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new Date(action.date).toLocaleString()}</span>
                       </div>
                     ))}
                     {userLogs.adminActions.length === 0 && (
