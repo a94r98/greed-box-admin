@@ -1349,8 +1349,8 @@ function App() {
                   { label: "نشطون", value: activeCount, color: "#22c55e" },
                   { label: "موقوف مؤقت", value: tempBannedCount, color: "#f59e0b" },
                   { label: "محظور نهائي", value: bannedCount, color: "#ef4444" },
-                  { label: "💎 إجمالي الماسات", value: Math.roundformatNumber(totalDiamonds), color: "#38bdf8" },
-                  { label: "🪙 إجمالي الكونزات", value: Math.roundformatNumber(totalCoins), color: "#f59e0b" },
+                  { label: "💎 إجمالي الماسات", value: formatNumber(Math.round(totalDiamonds)), color: "#38bdf8" },
+                  { label: "🪙 إجمالي الكونزات", value: formatNumber(Math.round(totalCoins)), color: "#f59e0b" },
                 ].map((card, i) => (
                   <div key={i} className="glass-card" style={{ padding: "0.8rem 1rem", borderLeft: `3px solid ${card.color}` }}>
                     <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginBottom: "0.2rem" }}>{card.label}</div>
