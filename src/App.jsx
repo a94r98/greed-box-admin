@@ -29,7 +29,7 @@ const TRANSLATIONS = {
     deposits: "طلبات الشحن",
     withdrawals: "طلبات السحب",
     config: "إعدادات النظام",
-    tasks: "المهام اليومية",
+    tasks: "المهام",
     pool: "سجل الخزينة",
     simulation: "محاكاة النظام",
     playGame: "قسم اللعبة 🎮",
@@ -133,7 +133,7 @@ const TRANSLATIONS = {
     deposits: "Deposits Queue",
     withdrawals: "Withdrawals",
     config: "Configurations",
-    tasks: "Daily Tasks",
+    tasks: "Tasks",
     pool: "Pool Logs",
     simulation: "Simulation Engine",
     playGame: "Game Section 🎮",
@@ -1009,11 +1009,11 @@ export default function App() {
         <ul className="nav-links">
           <li className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => { setActiveTab("dashboard"); setShowMobileSidebar(false); }}>{t.dashboard}</li>
           <li className={`nav-item ${activeTab === "play" ? "active" : ""}`} onClick={() => { setActiveTab("play"); fetchMyWallet(); setShowMobileSidebar(false); }}>{t.playGame}</li>
+          <li className={`nav-item ${activeTab === "tasks" ? "active" : ""}`} onClick={() => { setActiveTab("tasks"); setShowMobileSidebar(false); }}>{t.tasks}</li>
           <li className={`nav-item ${activeTab === "users" ? "active" : ""}`} onClick={() => { setActiveTab("users"); setShowMobileSidebar(false); }}>{t.users}</li>
           <li className={`nav-item ${activeTab === "deposits" ? "active" : ""}`} onClick={() => { setActiveTab("deposits"); setShowMobileSidebar(false); }}>{t.deposits}</li>
           <li className={`nav-item ${activeTab === "withdrawals" ? "active" : ""}`} onClick={() => { setActiveTab("withdrawals"); setShowMobileSidebar(false); }}>{t.withdrawals}</li>
           <li className={`nav-item ${activeTab === "config" ? "active" : ""}`} onClick={() => { setActiveTab("config"); setShowMobileSidebar(false); }}>{t.config}</li>
-          <li className={`nav-item ${activeTab === "tasks" ? "active" : ""}`} onClick={() => { setActiveTab("tasks"); setShowMobileSidebar(false); }}>{t.tasks}</li>
           <li className={`nav-item ${activeTab === "pool" ? "active" : ""}`} onClick={() => { setActiveTab("pool"); setShowMobileSidebar(false); }}>{t.pool}</li>
           <li className={`nav-item ${activeTab === "simulation" ? "active" : ""}`} onClick={() => { setActiveTab("simulation"); setShowMobileSidebar(false); }}>{t.simulation}</li>
           <li className="nav-item logout-btn" onClick={() => { handleLogout(); setShowMobileSidebar(false); }}>{t.logout}</li>
