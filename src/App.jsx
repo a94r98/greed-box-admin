@@ -31,6 +31,7 @@ const TRANSLATIONS = {
     config: "إعدادات النظام",
     tasks: "المهام",
     finance: "المحاسبة والمستشار 📊",
+    store: "إدارة المتجر 🛒",
     pool: "سجل الخزينة",
     simulation: "محاكاة النظام",
     playGame: "قسم اللعبة 🎮",
@@ -255,6 +256,22 @@ export default function App() {
   const [financeStats, setFinanceStats] = useState(null);
   const [financeLogs, setFinanceLogs] = useState([]);
   const [financeCurrency, setFinanceCurrency] = useState("IQD");
+
+  // Store Management State
+  const [products, setProducts] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [storeOrders, setStoreOrders] = useState([]);
+  const [storeTab, setStoreTab] = useState("products"); // products, payment_methods, orders
+  
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  
+  const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false);
+  const [editingPaymentMethod, setEditingPaymentMethod] = useState(null);
+  
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
   const [newFinanceLog, setNewFinanceLog] = useState({ type: "EXPENSE", category: "MANUAL", amount: "", currency: "IQD", description: "" });
   const [showFinanceModal, setShowFinanceModal] = useState(false);
 
@@ -460,6 +477,7 @@ export default function App() {
     if (activeTab === "config") fetchConfig();
     if (activeTab === "tasks") fetchTasks();
     if (activeTab === "finance") fetchFinanceStats();
+    if (activeTab === "store") fetchStoreData();
 
     if (activeTab === "pool") fetchPoolLogs();
   }, [activeTab, token]);
@@ -1014,6 +1032,7 @@ export default function App() {
           <li className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => { setActiveTab("dashboard"); setShowMobileSidebar(false); }}>{t.dashboard}</li>
           <li className={`nav-item ${activeTab === "play" ? "active" : ""}`} onClick={() => { setActiveTab("play"); fetchMyWallet(); setShowMobileSidebar(false); }}>{t.playGame}</li>
           <li className={`nav-item ${activeTab === "finance" ? "active" : ""}`} onClick={() => { setActiveTab("finance"); setShowMobileSidebar(false); }}>{t.finance}</li>
+          <li className={`nav-item ${activeTab === "store" ? "active" : ""}`} onClick={() => { setActiveTab("store"); setShowMobileSidebar(false); }}>{t.store}</li>
 
           <li className={`nav-item ${activeTab === "tasks" ? "active" : ""}`} onClick={() => { setActiveTab("tasks"); setShowMobileSidebar(false); }}>{t.tasks}</li>
           <li className={`nav-item ${activeTab === "users" ? "active" : ""}`} onClick={() => { setActiveTab("users"); setShowMobileSidebar(false); }}>{t.users}</li>
@@ -1814,6 +1833,7 @@ export default function App() {
                     <th>{t.amount}</th>
                     <th>{t.status}</th>
                     <th>{t.refNo}</th>
+                    <th>صورة الوصل</th>
                     <th>{t.date}</th>
                     <th>{t.actions}</th>
                   </tr>
@@ -1828,6 +1848,11 @@ export default function App() {
                       <td><strong>{formatNumber(d.amount, 2)} CASH</strong></td>
                       <td><span className={`badge ${d.status === "PENDING" ? "betting" : d.status === "APPROVED" ? "revealing" : "locked"}`}>{d.status}</span></td>
                       <td>{d.transactionRef || <span style={{ color: "var(--text-muted)" }}>Pending</span>}</td>
+                      <td>
+                        {d.receiptImageUrl ? (
+                          <a href={d.receiptImageUrl} target="_blank" rel="noreferrer" style={{ color: "var(--accent-sky)", textDecoration: "underline" }}>عرض الوصل</a>
+                        ) : <span style={{ color: "var(--text-muted)" }}>لا يوجد</span>}
+                      </td>
                       <td>{new Date(d.createdAt).toLocaleString()}</td>
                       <td>
                         {d.status === "PENDING" && (
