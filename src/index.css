@@ -74,11 +74,12 @@ body {
 
 .main-content {
   display: block;
-  width: 100%;
-  margin-right: var(--sidebar-width);   /* physical: pushes content left of sidebar */
+  /* NO explicit width — block elements auto-shrink: width = 100vw - margin-right */
+  margin-right: var(--sidebar-width);   /* = viewport_width - sidebar_width */
   padding: var(--content-pad);
   min-height: 100vh;
   box-sizing: border-box;
+  overflow-x: hidden;
   transition: var(--transition-smooth);
 }
 
