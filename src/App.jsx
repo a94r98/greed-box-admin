@@ -280,6 +280,39 @@ export default function App() {
   const [withdrawals, setWithdrawals] = useState([]);
   const [config, setConfig] = useState(null);
   const [tasks, setTasks] = useState([]);
+
+  const [financeStats, setFinanceStats] = useState(null);
+  const [financeLogs, setFinanceLogs] = useState([]);
+  const [financeCurrency, setFinanceCurrency] = useState("IQD");
+  const [showFinanceModal, setShowFinanceModal] = useState(false);
+  const [newFinanceLog, setNewFinanceLog] = useState({ type: "EXPENSE", category: "SERVER", amount: "", currency: "USD", description: "" });
+
+  const fetchFinanceStats = () => {
+    apiCall("/admin/finance/stats")
+      .then(d => {
+        setFinanceStats(d);
+        setFinanceLogs(d.logs || []);
+      })
+      .catch(console.error);
+  };
+
+  const handleAddFinanceLog = async (e) => {
+    e.preventDefault();
+    if (!newFinanceLog.amount) return;
+    try {
+      const res = await apiCall("/admin/finance/log", {
+        method: "POST",
+        body: JSON.stringify(newFinanceLog)
+      });
+      alert(res.message || "تم تسجيل العملية بنجاح!");
+      setShowFinanceModal(false);
+      setNewFinanceLog({ type: "EXPENSE", category: "SERVER", amount: "", currency: "USD", description: "" });
+      fetchFinanceStats();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const [poolLogs, setPoolLogs] = useState([]);
 
   // Modals & Action forms
