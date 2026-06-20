@@ -989,7 +989,7 @@ function App() {
     return (
       <div className="auth-container" dir={direction}>
         <form onSubmit={handleLogin} className="glass-card auth-card">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.5rem" }}>
             <h2>{t.brand}</h2>
             <button type="button" className="btn" style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }} onClick={handleLanguageToggle}>
               {lang === "ar" ? "English" : "العربية"}
@@ -1075,7 +1075,7 @@ function App() {
         </div>
         {activeTab === "dashboard" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "0.75rem" }}>
               <h2>{t.dashboard}</h2>
               <span className={`badge ${socketConnected ? "revealing" : "locked"}`}>
                 {t.socketStatus}: {socketConnected ? t.connected : t.disconnected}
@@ -1515,7 +1515,7 @@ function App() {
         {showUserMgmtModal && selectedUser && (
           <div className="modal-overlay" onClick={() => setShowUserMgmtModal(false)}>
             <div className="glass-card" onClick={e => e.stopPropagation()}
-              style={{ maxWidth: "740px", width: "96%", maxHeight: "92vh", overflowY: "auto", borderRadius: "16px" }}>
+              style={{ maxWidth: "min(740px, 96vw)", width: "96%", maxHeight: "92vh", overflowY: "auto", borderRadius: "16px" }}>
 
               {/* Modal Header */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -2047,7 +2047,7 @@ function App() {
 
           return (
             <div className="glass-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.5rem" }}>
                 <div>
                   <h2>{t.tasks}</h2>
                   <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>
@@ -2839,7 +2839,7 @@ function App() {
         {/* Smart Financial System Tab */}
         {activeTab === "finance" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.5rem" }}>
               <h2>نظام المحاسبة والمستشار المالي 📊</h2>
               <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
                 <select value={financeCurrency} onChange={e => setFinanceCurrency(e.target.value)} style={{ padding: "0.5rem", borderRadius: "5px", background: "var(--bg-secondary)", color: "var(--text-primary)", border: "1px solid var(--border-color)" }}>
