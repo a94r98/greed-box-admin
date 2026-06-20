@@ -1046,20 +1046,19 @@ function App() {
           </button>
         </div>
         <ul className="nav-links">
-          <li className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => { setActiveTab("dashboard"); setShowMobileSidebar(false); }}>{t.dashboard}</li>
-          <li className={`nav-item ${activeTab === "play" ? "active" : ""}`} onClick={() => { setActiveTab("play"); fetchMyWallet(); setShowMobileSidebar(false); }}>{t.playGame}</li>
-          <li className={`nav-item ${activeTab === "finance" ? "active" : ""}`} onClick={() => { setActiveTab("finance"); setShowMobileSidebar(false); }}>{t.finance}</li>
-          <li className={`nav-item ${activeTab === "store" ? "active" : ""}`} onClick={() => { setActiveTab("store"); setShowMobileSidebar(false); }}>{t.store}</li>
-
-          <li className={`nav-item ${activeTab === "tasks" ? "active" : ""}`} onClick={() => { setActiveTab("tasks"); setShowMobileSidebar(false); }}>{t.tasks}</li>
-          <li className={`nav-item ${activeTab === "users" ? "active" : ""}`} onClick={() => { setActiveTab("users"); setShowMobileSidebar(false); }}>{t.users}</li>
-          <li className={`nav-item ${activeTab === "deposits" ? "active" : ""}`} onClick={() => { setActiveTab("deposits"); setShowMobileSidebar(false); }}>{t.deposits}</li>
-          <li className={`nav-item ${activeTab === "withdrawals" ? "active" : ""}`} onClick={() => { setActiveTab("withdrawals"); setShowMobileSidebar(false); }}>{t.withdrawals}</li>
-          <li className={`nav-item ${activeTab === "config" ? "active" : ""}`} onClick={() => { setActiveTab("config"); setShowMobileSidebar(false); }}>{t.config}</li>
-          <li className={`nav-item ${activeTab === "pool" ? "active" : ""}`} onClick={() => { setActiveTab("pool"); setShowMobileSidebar(false); }}>{t.pool}</li>
-          <li className={`nav-item ${activeTab === "simulation" ? "active" : ""}`} onClick={() => { setActiveTab("simulation"); setShowMobileSidebar(false); }}>{t.simulation}</li>
-          <li className="nav-item logout-btn" onClick={() => { handleLogout(); setShowMobileSidebar(false); }}>{t.logout}</li>
-        </ul>
+            <li className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => { setActiveTab("dashboard"); setShowMobileSidebar(false); }}>🏠 الصفحة الرئيسية</li>
+            <li className={`nav-item ${activeTab === "shipping" ? "active" : ""}`} onClick={() => { setActiveTab("shipping"); setShowMobileSidebar(false); }}>🚚 طلبات المتجر و الشحن</li>
+            <li className={`nav-item ${activeTab === "play" ? "active" : ""}`} onClick={() => { setActiveTab("play"); fetchMyWallet(); setShowMobileSidebar(false); }}>🎮 العبة</li>
+            <li className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`} onClick={() => { setActiveTab("leaderboard"); setShowMobileSidebar(false); }}>🏆 المتصدرين</li>
+            <li className={`nav-item ${activeTab === "tasks" ? "active" : ""}`} onClick={() => { setActiveTab("tasks"); setShowMobileSidebar(false); }}>📋 المهام</li>
+            <li className={`nav-item ${activeTab === "wallet" ? "active" : ""}`} onClick={() => { setActiveTab("wallet"); setShowMobileSidebar(false); }}>💰 المحفظة</li>
+            <li className={`nav-item ${activeTab === "ads" ? "active" : ""}`} onClick={() => { setActiveTab("ads"); setShowMobileSidebar(false); }}>📢 الاعلانات</li>
+            <li className={`nav-item ${activeTab === "store" ? "active" : ""}`} onClick={() => { setActiveTab("store"); setShowMobileSidebar(false); }}>🛒 المتجر</li>
+            <li className={`nav-item ${activeTab === "users" ? "active" : ""}`} onClick={() => { setActiveTab("users"); setShowMobileSidebar(false); }}>👥 المستخدمين</li>
+            <li className={`nav-item ${activeTab === "finance" ? "active" : ""}`} onClick={() => { setActiveTab("finance"); setShowMobileSidebar(false); }}>📊 المحاسبة والمستشار</li>
+            <li className={`nav-item ${activeTab === "config" ? "active" : ""}`} onClick={() => { setActiveTab("config"); setShowMobileSidebar(false); }}>⚙️ إعدادات النظام</li>
+            <li className="nav-item logout-btn" onClick={() => { handleLogout(); setShowMobileSidebar(false); }}>🚪 {t.logout}</li>
+          </ul>
       </div>
 
       {/* Main Content Area */}
@@ -2801,10 +2800,42 @@ function App() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
 
+        {/* Shipping & Store Orders Tab */}
+        {activeTab === "shipping" && (
+          <div className="glass-card">
+            <h2>🚚 طلبات المتجر و الشحن</h2>
+            <p style={{ marginTop: "1rem", color: "var(--text-muted)" }}>هذا القسم قيد التطوير...</p>
+          </div>
+        )}
 
-        
-        
+        {/* Leaderboard Tab */}
+        {activeTab === "leaderboard" && (
+          <div className="glass-card">
+            <h2>🏆 المتصدرين</h2>
+            <p style={{ marginTop: "1rem", color: "var(--text-muted)" }}>هذا القسم قيد التطوير...</p>
+          </div>
+        )}
+
+        {/* Wallet Tab */}
+        {activeTab === "wallet" && (
+          <div className="glass-card">
+            <h2>💰 المحفظة</h2>
+            <p style={{ marginTop: "1rem", color: "var(--text-muted)" }}>هذا القسم قيد التطوير...</p>
+          </div>
+        )}
+
+        {/* Ads Tab */}
+        {activeTab === "ads" && (
+          <div className="glass-card">
+            <h2>📢 الاعلانات</h2>
+            <p style={{ marginTop: "1rem", color: "var(--text-muted)" }}>هذا القسم قيد التطوير...</p>
+          </div>
+        )}
+
         {/* Smart Financial System Tab */}
         {activeTab === "finance" && (
           <div>
@@ -3015,9 +3046,6 @@ function App() {
             </div>
           </div>
         )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
