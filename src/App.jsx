@@ -1266,67 +1266,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Input betting amount and place bets */}
-            <div className="glass-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "1rem" }}>
-                <h3>{t.betPrompt}</h3>
-                <input 
-                  type="number" 
-                  value={playAmount} 
-                  onChange={e => setPlayAmount(e.target.value)} 
-                  style={{ width: "150px", fontSize: "1.1rem", fontWeight: "700" }} 
-                />
-              </div>
-
-              <div className="boxes-container">
-                {[0,1,2,3,4,5,6,7].map(boxIndex => {
-                  const mult = boxIndex <= 3 ? "5x" : (boxIndex === 4 ? "10x" : (boxIndex === 5 ? "15x" : (boxIndex === 6 ? "25x" : "45x")));
-                  const isPlaced = myBets.find(b => b.boxIndex === boxIndex);
-                  
-                  return (
-                    <div key={boxIndex} className={`box-card ${isPlaced ? "active" : ""}`} onClick={() => placeLiveBet(boxIndex)}>
-                      <span className="box-multiplier">{mult}</span>
-                      <h3>Box {boxIndex}</h3>
-                      <button className="btn btn-primary" style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", width: "100%", marginTop: "0.5rem" }}>
-                        {isPlaced ? `${isPlaced.amount} PLEDGED` : t.placeBetBtn}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Active player wagers details */}
-            <div className="glass-card">
-              <h3>{t.myRoundsHistory}</h3>
-              <div className="table-container" style={{ marginTop: "0.5rem" }}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Box</th>
-                      <th>{t.amount}</th>
-                      <th>{t.currencyMode}</th>
-                      <th>{t.status}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {myBets.map((b, idx) => (
-                      <tr key={idx}>
-                        <td>Box {b.boxIndex}</td>
-                        <td>{b.amount}</td>
-                        <td>{b.currency}</td>
-                        <td><span className="badge betting">PENDING</span></td>
-                      </tr>
-                    ))}
-                    {myBets.length === 0 && (
-                      <tr>
-                        <td colSpan="4" style={{ textAlign: "center", color: "var(--text-muted)" }}>Place bets above to participate in the live round.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
           </div>
         )}
 
