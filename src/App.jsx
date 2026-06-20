@@ -1009,8 +1009,7 @@ export default function App() {
 
           <button type="submit" className="btn btn-primary" style={{ width: "100%" }}>{t.loginBtn}</button>
         </form>
-            </ErrorBoundary>
-</div>
+      </div>
     );
   }
 
@@ -1048,7 +1047,6 @@ export default function App() {
 
       {/* Main Content Area */}
       <div className="main-content">
-        <ErrorBoundary>
         {/* Mobile top navigation header */}
         <div className="mobile-header">
           <button className="menu-toggle-btn" onClick={() => setShowMobileSidebar(true)}>
@@ -1284,8 +1282,7 @@ export default function App() {
                       <span className="box-multiplier">{mult}</span>
                       <h3>Box {boxIndex}</h3>
                       <div className="box-bets-value">{formatNumber(betsTotal, 1)} {liveRound?.currencyMode === "FREE_ONLY" ? "FREE" : "CASH"}</div>
-                          </ErrorBoundary>
-</div>
+                    </div>
                   );
                 })}
               </div>
@@ -1494,8 +1491,7 @@ export default function App() {
                   </div>
                 )}
               </div>
-                  </ErrorBoundary>
-</div>
+            </div>
           );
         })()}
 
@@ -2162,8 +2158,7 @@ export default function App() {
                   </tbody>
                 </table>
               </div>
-                  </ErrorBoundary>
-</div>
+            </div>
           );
         })()}
 
@@ -3006,7 +3001,6 @@ export default function App() {
           </div>
         </div>
       )}
-          </ErrorBoundary>
-</div>
+    </div>
   );
 }
