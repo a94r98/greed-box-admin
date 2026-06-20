@@ -1048,7 +1048,7 @@ export default function App() {
               {/* إجمالي الأرباح - كونزات */}
               <div className="glass-card stat-card green">
                 <span className="stat-label">{t.totalProfits} - كونزات</span>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: "10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: "10px", flexWrap: "wrap", gap: "0.5rem" }}>
                   <span className="stat-value" style={{ color: 'var(--accent-gold)' }}>{formatNumber(stats?.adminProfits?.cash)}</span>
                   <span style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>
                     ≈ ${( (stats?.adminProfits?.cash || 0) / 3000000 ).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -1105,7 +1105,7 @@ export default function App() {
               {/* الصندوق الاسود - كونزات */}
               <div className="glass-card stat-card sky-blue">
                 <span className="stat-label">الصندوق الأسود (الخزينة) - كونزات</span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <span className="stat-value" style={{ color: 'var(--accent-gold)' }}>{formatNumber(stats?.pools?.cash)}</span>
                   <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                     ≈ ${( (stats?.pools?.cash || 0) / 3000000 ).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -1198,7 +1198,7 @@ export default function App() {
               <div style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", gap: "1.5rem" }}>
                 <div>
                   <span className="stat-label">{t.roundId}</span>
-                  <p style={{ fontFamily: "monospace", fontSize: "0.9rem", color: "var(--accent-gold)" }}>
+                  <p style={{ fontFamily: "monospace", fontSize: "0.9rem", color: "var(--accent-gold)", wordBreak: "break-all" }}>
                     {liveRound?.roundId || "..."}
                   </p>
                 </div>

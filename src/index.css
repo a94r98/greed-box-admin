@@ -73,6 +73,7 @@ body {
   margin-inline-start: 260px;
   padding: 2.5rem;
   min-height: 100vh;
+  overflow-x: hidden;
   transition: var(--transition-smooth);
 }
 
