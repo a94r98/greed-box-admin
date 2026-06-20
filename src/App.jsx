@@ -1987,7 +1987,7 @@ function App() {
 
         {/* Configuration settings panel */}
         {activeTab === "config" && config && (
-          <form onSubmit={handleSaveConfig} className="glass-card" style={{ maxWidth: "600px" }}>
+          <form onSubmit={handleSaveConfig} className="glass-card">
             <h2>{t.config}</h2>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1.5rem" }}>
               <div className="form-group">

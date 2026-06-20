@@ -412,6 +412,35 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 /* ════════════════════════════════════════
+   GLOBAL SECTION WIDTH RULES
+   Every direct child of main-content fills
+   the full available width — same as dashboard
+════════════════════════════════════════ */
+.main-content > div,
+.main-content > form {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Config form — was limited to 600px, now full width in a nice 2-col grid */
+.main-content > form.glass-card {
+  max-width: 100% !important;
+}
+
+/* Simulation 2-col grid: responsive */
+[style*="gridTemplateColumns: \"1fr 1fr\""] {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+}
+
+/* Any inline flex that has space-between — force wrap on smaller screens */
+.main-content [style*="justifyContent: \"space-between\""] {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+
+
+/* ════════════════════════════════════════
    TABLET (≤ 1100px)
 ════════════════════════════════════════ */
 @media (max-width: 1100px) {
