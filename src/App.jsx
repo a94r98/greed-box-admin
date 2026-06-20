@@ -2349,7 +2349,7 @@ function App() {
                   </div>
 
                   <h4>{t.frequencies}</h4>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.5rem", marginTop: "0.5rem" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "0.5rem", marginTop: "0.5rem" }}>
                     {Object.entries(simReport.boxWinningFrequencies).map(([box, count]) => (
                       <div key={box} style={{ background: "rgba(0,0,0,0.2)", padding: "0.5rem", borderRadius: "6px", textAlign: "center" }}>
                         <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Box {box}</div>
@@ -2899,7 +2899,7 @@ function App() {
                 <h3 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>📦 طلبات الشحن</h3>
 
                 {/* Shipping Stats */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.85rem", marginBottom: "1.25rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "0.85rem", marginBottom: "1.25rem" }}>
                   {[
                     { label: "إجمالي طلبات الشحن", value: shTotal, color: "var(--accent-neon-blue)", filter: "ALL" },
                     { label: "⏳ معلقة", value: shPending, color: "var(--accent-gold)", filter: "PENDING" },
@@ -2983,7 +2983,7 @@ function App() {
                 <h3 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>🛒 طلبات المتجر</h3>
 
                 {/* Store Stats */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.85rem", marginBottom: "1.25rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "0.85rem", marginBottom: "1.25rem" }}>
                   {[
                     { label: "إجمالي طلبات المتجر", value: orTotal, color: "#a78bfa", filter: "ALL" },
                     { label: "⏳ معلقة", value: orPending, color: "var(--accent-gold)", filter: "PENDING" },
@@ -3130,7 +3130,7 @@ function App() {
             </div>
 
             {/* Financial Overview Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem", marginBottom: "1.5rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1.25rem", marginBottom: "1.5rem" }}>
               <div className="glass-card stat-card green">
                 <span className="stat-label">إجمالي الإيرادات (Revenue)</span>
                 <span className="stat-value" style={{ color: "var(--accent-neon-green)", marginTop: "10px", fontSize: "1.8rem" }}>
