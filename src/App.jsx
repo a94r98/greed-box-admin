@@ -2873,7 +2873,7 @@ function App() {
             </div>
 
             {/* Financial Overview Cards */}
-            <div className="stats-grid" style={{ marginBottom: "1.5rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem", marginBottom: "1.5rem" }}>
               <div className="glass-card stat-card green">
                 <span className="stat-label">إجمالي الإيرادات (Revenue)</span>
                 <span className="stat-value" style={{ color: "var(--accent-neon-green)", marginTop: "10px", fontSize: "1.8rem" }}>
