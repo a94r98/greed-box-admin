@@ -235,7 +235,7 @@ const TRANSLATIONS = {
   }
 };
 
-export default function App() {
+function App() {
   const [lang, setLang] = useState(localStorage.getItem("admin_lang") || "ar");
   const [token, setToken] = useState(localStorage.getItem("admin_token") || "");
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("admin_user") || "null"));
@@ -3002,5 +3002,50 @@ export default function App() {
         </div>
       )}
     </div>
+  );
+}
+
+
+
+
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+    this.setState({ errorInfo });
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: "2rem", color: "white", background: "#b91c1c", margin: "1rem", borderRadius: "8px", direction: "rtl", fontFamily: "sans-serif" }}>
+          <h2 style={{ color: "white" }}>حدث خطأ برمجي (Crash)</h2>
+          <p>يرجى تصوير هذه الشاشة وإرسالها للمبرمج فوراً:</p>
+          <pre style={{ background: "#7f1d1d", padding: "1rem", overflowX: "auto", marginTop: "1rem", fontSize: "12px", direction: "ltr", textAlign: "left" }}>
+            {this.state.error && this.state.error.toString()}
+            {"\n"}
+            {this.state.errorInfo && this.state.errorInfo.componentStack}
+          </pre>
+          <button onClick={() => window.location.reload()} style={{ marginTop: "1rem", padding: "0.5rem 1rem", background: "white", color: "#b91c1c", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}>
+            تحديث الصفحة
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function AppWithErrorBoundary() {
+  return (
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   );
 }
