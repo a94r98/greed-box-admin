@@ -2758,39 +2758,189 @@ export default function App() {
             )}
 
 
-        {/* My Profits Tab */}
+        
+        {/* Smart Financial System Tab */}
         {activeTab === "profits" && (
-          <div className="glass-card">
-            <h2>{t.profits}</h2>
-            <div className="table-container" style={{ marginTop: "1rem" }}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>المعرف (ID)</th>
-                    <th>النوع</th>
-                    <th>مبلغ السحب (الربح)</th>
-                    <th>التاريخ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {profitLogs.map(log => (
-                    <tr key={log.id}>
-                      <td style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>{log.id.substring(0, 8)}...</td>
-                      <td>{log.poolType === "CASH" ? "كونزات" : "ماسات"}</td>
-                      <td style={{ color: "var(--accent-neon-green)", fontWeight: "bold" }}>{formatNumber(Math.abs(log.amountChange))}</td>
-                      <td>{new Date(log.createdAt).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                  {profitLogs.length === 0 && (
-                    <tr>
-                      <td colSpan="4" style={{ textAlign: "center", color: "var(--text-muted)" }}>لا توجد عمليات سحب للأرباح.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+              <h2>نظام المحاسبة والمستشار المالي 📊</h2>
+              <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                <select value={financeCurrency} onChange={e => setFinanceCurrency(e.target.value)} style={{ padding: "0.5rem", borderRadius: "5px", background: "var(--bg-secondary)", color: "var(--text-primary)", border: "1px solid var(--border-color)" }}>
+                  <option value="IQD">دينار عراقي (IQD)</option>
+                  <option value="USD">دولار أمريكي ($)</option>
+                  <option value="COINS">كونزات اللعبة</option>
+                </select>
+                <button className="btn btn-primary" onClick={() => setShowFinanceModal(true)}>+ تسجيل عملية مالية</button>
+              </div>
             </div>
+
+            {/* Smart Advisor AI Box */}
+            <div className="glass-card" style={{ marginBottom: "1.5rem", background: "linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)", border: "1px solid rgba(139, 92, 246, 0.3)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                <span style={{ fontSize: "1.5rem" }}>🤖</span>
+                <h3 style={{ color: "#a78bfa", margin: 0 }}>المستشار الذكي (Smart Advisor)</h3>
+              </div>
+              <p style={{ lineHeight: "1.6" }}>
+                {(() => {
+                  if (!financeStats) return "جاري تحليل البيانات...";
+                  const net = financeStats.netProfitIqd || 0;
+                  const rev = financeStats.totalRevenueIqd || 0;
+                  const exp = financeStats.totalExpenseIqd || 0;
+                  if (rev === 0 && exp === 0) return "مرحباً بك في النظام المحاسبي الجديد! قم بتسجيل مصاريف السيرفر أو اسحب أرباحاً من اللعبة لكي أبدأ بتحليل بياناتك.";
+                  if (net > 0 && exp === 0) return "أداؤك المالي ممتاز! لقد حققت أرباحاً صافية ولم تقم بتسجيل أي مصاريف حتى الآن. لا تنسَ تسجيل تكاليف السيرفرات لكي تكون حساباتك دقيقة 100%.";
+                  if (net > 0 && exp > 0) return `عمل رائع! الإيرادات تغطي المصروفات، وصافي ربحك الحالي يبلغ حوالي ${(net / (financeStats.exchangeRateIqd || 1600)).toFixed(2)}$ دولار. ننصحك بالاستمرار في تحفيز اللاعبين واستثمار جزء من الأرباح في إعلانات جديدة.`;
+                  if (net < 0) return `تحذير مالي! مصاريفك (تكاليف السيرفرات وغيرها) تتجاوز أرباحك الحالية بعجز قدره ${Math.abs(net / (financeStats.exchangeRateIqd || 1600)).toFixed(2)}$ دولار. راجع تكاليفك وحاول تنشيط قسم المتجر والشحن لزيادة الدخل.`;
+                  return "أداء النظام مستقر. لا توجد أرباح أو خسائر كبيرة.";
+                })()}
+              </p>
+            </div>
+
+            {/* Financial Overview Cards */}
+            <div className="stats-grid" style={{ marginBottom: "1.5rem" }}>
+              <div className="glass-card stat-card green">
+                <span className="stat-label">إجمالي الإيرادات (Revenue)</span>
+                <span className="stat-value" style={{ color: "var(--accent-neon-green)", marginTop: "10px", fontSize: "1.8rem" }}>
+                  {(() => {
+                    if (!financeStats) return "0";
+                    let val = financeStats.totalRevenueIqd;
+                    if (financeCurrency === "USD") val = val / (financeStats.exchangeRateIqd || 1600);
+                    if (financeCurrency === "COINS") val = val / (financeStats.exchangeRateIqd || 1600) * 3000000;
+                    return formatNumber(val, financeCurrency === "IQD" ? 0 : 2);
+                  })()}
+                  <span style={{ fontSize: "1rem", marginLeft: "5px" }}>{financeCurrency === "IQD" ? "د.ع" : financeCurrency === "USD" ? "$" : "C"}</span>
+                </span>
+              </div>
+              <div className="glass-card stat-card red">
+                <span className="stat-label">إجمالي المصروفات (Expenses)</span>
+                <span className="stat-value" style={{ color: "var(--accent-neon-red)", marginTop: "10px", fontSize: "1.8rem" }}>
+                  {(() => {
+                    if (!financeStats) return "0";
+                    let val = financeStats.totalExpenseIqd;
+                    if (financeCurrency === "USD") val = val / (financeStats.exchangeRateIqd || 1600);
+                    if (financeCurrency === "COINS") val = val / (financeStats.exchangeRateIqd || 1600) * 3000000;
+                    return formatNumber(val, financeCurrency === "IQD" ? 0 : 2);
+                  })()}
+                  <span style={{ fontSize: "1rem", marginLeft: "5px" }}>{financeCurrency === "IQD" ? "د.ع" : financeCurrency === "USD" ? "$" : "C"}</span>
+                </span>
+              </div>
+              <div className={`glass-card stat-card ${financeStats?.netProfitIqd < 0 ? "red" : "gold"}`}>
+                <span className="stat-label">صافي الربح / الخسارة</span>
+                <span className="stat-value" style={{ color: financeStats?.netProfitIqd < 0 ? "var(--accent-neon-red)" : "var(--accent-gold)", marginTop: "10px", fontSize: "1.8rem" }}>
+                  {(() => {
+                    if (!financeStats) return "0";
+                    let val = financeStats.netProfitIqd;
+                    if (financeCurrency === "USD") val = val / (financeStats.exchangeRateIqd || 1600);
+                    if (financeCurrency === "COINS") val = val / (financeStats.exchangeRateIqd || 1600) * 3000000;
+                    return formatNumber(val, financeCurrency === "IQD" ? 0 : 2);
+                  })()}
+                  <span style={{ fontSize: "1rem", marginLeft: "5px" }}>{financeCurrency === "IQD" ? "د.ع" : financeCurrency === "USD" ? "$" : "C"}</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Ledger Table */}
+            <div className="glass-card">
+              <h3>سجل العمليات المالية (Ledger)</h3>
+              <div className="table-container" style={{ marginTop: "1rem" }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>التاريخ</th>
+                      <th>النوع</th>
+                      <th>التصنيف</th>
+                      <th>المبلغ</th>
+                      <th>العملة الأصلية</th>
+                      <th>التفاصيل</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {financeLogs.map(log => (
+                      <tr key={log.id}>
+                        <td style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>{new Date(log.createdAt).toLocaleString()}</td>
+                        <td>
+                          <span className={`badge ${log.type === "REVENUE" ? "won" : "lost"}`}>
+                            {log.type === "REVENUE" ? "إيراد" : "مصروف"}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="badge secondary">
+                            {log.category === "SERVER" ? "سيرفرات" : log.category === "ADS" ? "إعلانات" : log.category === "STORE" ? "متجر" : log.category === "GAME" ? "اللعبة" : "أخرى"}
+                          </span>
+                        </td>
+                        <td style={{ color: log.type === "REVENUE" ? "var(--accent-neon-green)" : "var(--accent-neon-red)", fontWeight: "bold" }}>
+                          {log.type === "REVENUE" ? "+" : "-"}{formatNumber(log.amount)}
+                        </td>
+                        <td>{log.currency === "IQD" ? "دينار" : log.currency === "USD" ? "دولار" : "كونزات"}</td>
+                        <td style={{ fontSize: "0.85rem" }}>{log.description || "-"}</td>
+                      </tr>
+                    ))}
+                    {financeLogs.length === 0 && (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: "center", color: "var(--text-muted)" }}>لا توجد عمليات مالية مسجلة.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Finance Modal */}
+            {showFinanceModal && (
+              <div className="modal-overlay">
+                <div className="modal-content" style={{ maxWidth: "500px" }}>
+                  <div className="modal-header">
+                    <h2>تسجيل عملية مالية جديدة</h2>
+                    <button className="close-btn" onClick={() => setShowFinanceModal(false)}>×</button>
+                  </div>
+                  <form onSubmit={handleAddFinanceLog} style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
+                    
+                    <div className="form-group">
+                      <label>نوع العملية</label>
+                      <select value={newFinanceLog.type} onChange={e => setNewFinanceLog({...newFinanceLog, type: e.target.value})}>
+                        <option value="EXPENSE">دفع مصروفات (سيرفرات، إعلانات مدفوعة...)</option>
+                        <option value="REVENUE">استلام إيرادات (أرباح إعلانات، وغيرها...)</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label>التصنيف</label>
+                      <select value={newFinanceLog.category} onChange={e => setNewFinanceLog({...newFinanceLog, category: e.target.value})}>
+                        <option value="SERVER">السيرفرات وقواعد البيانات</option>
+                        <option value="ADS">الإعلانات (تسويق أو أرباح)</option>
+                        <option value="STORE">المتجر والشحن</option>
+                        <option value="GAME">أرباح اللعبة</option>
+                        <option value="MANUAL">أخرى (يدوي)</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                      <div className="form-group">
+                        <label>المبلغ</label>
+                        <input type="number" step="0.01" required value={newFinanceLog.amount} onChange={e => setNewFinanceLog({...newFinanceLog, amount: e.target.value})} />
+                      </div>
+                      <div className="form-group">
+                        <label>العملة</label>
+                        <select value={newFinanceLog.currency} onChange={e => setNewFinanceLog({...newFinanceLog, currency: e.target.value})}>
+                          <option value="IQD">دينار عراقي (IQD)</option>
+                          <option value="USD">دولار أمريكي ($)</option>
+                          <option value="COINS">كونزات اللعبة</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label>التفاصيل (اختياري)</label>
+                      <input type="text" placeholder="مثال: دفع تكاليف سيرفر AWS لشهر 6" value={newFinanceLog.description} onChange={e => setNewFinanceLog({...newFinanceLog, description: e.target.value})} />
+                    </div>
+
+                    <button type="submit" className="btn btn-primary" style={{ marginTop: "1rem" }}>حفظ العملية</button>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
+
 
         {/* Withdraw Profit Modal */}
         {showWithdrawModal && (
