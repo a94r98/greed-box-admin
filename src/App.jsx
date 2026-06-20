@@ -248,8 +248,14 @@ export default function App() {
   // Live Stats & Sockets state
   const [stats, setStats] = useState(null);
 
+  
   // Admin Profits state
-  const [profitLogs, setProfitLogs] = useState([]);
+  const [financeStats, setFinanceStats] = useState(null);
+  const [financeLogs, setFinanceLogs] = useState([]);
+  const [financeCurrency, setFinanceCurrency] = useState("IQD");
+  const [newFinanceLog, setNewFinanceLog] = useState({ type: "EXPENSE", category: "MANUAL", amount: "", currency: "IQD", description: "" });
+  const [showFinanceModal, setShowFinanceModal] = useState(false);
+
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawPoolType, setWithdrawPoolType] = useState("CASH");
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -447,7 +453,7 @@ export default function App() {
     if (!token) return;
     if (activeTab === "users") fetchUsers();
     if (activeTab === "play") fetchPastRounds();
-    if (activeTab === "profits") fetchProfitLogs();
+    if (activeTab === "profits") fetchFinanceStats();
     if (activeTab === "deposits") fetchDeposits();
     if (activeTab === "withdrawals") fetchWithdrawals();
     if (activeTab === "config") fetchConfig();
@@ -513,11 +519,35 @@ export default function App() {
   };
 
   
-  const fetchProfitLogs = () => {
-    apiCall("/admin/profits/logs")
-      .then(d => setProfitLogs(d.logs || []))
+  
+  const fetchFinanceStats = () => {
+    apiCall("/admin/finance/stats")
+      .then(d => {
+        setFinanceStats(d);
+        setFinanceLogs(d.logs || []);
+      })
       .catch(console.error);
   };
+
+
+  
+  const handleAddFinanceLog = async (e) => {
+    e.preventDefault();
+    if (!newFinanceLog.amount) return;
+    try {
+      await apiCall("/admin/finance/log", {
+        method: "POST",
+        body: JSON.stringify(newFinanceLog)
+      });
+      setShowFinanceModal(false);
+      setNewFinanceLog({ type: "EXPENSE", category: "MANUAL", amount: "", currency: "IQD", description: "" });
+      fetchFinanceStats();
+      alert("تم التسجيل بنجاح!");
+    } catch(err) {
+      alert("حدث خطأ أثناء التسجيل");
+    }
+  };
+
 
   const handleWithdrawProfit = async (e) => {
     e.preventDefault();
@@ -534,7 +564,7 @@ export default function App() {
       setShowWithdrawModal(false);
       setWithdrawAmount("");
       fetchStats();
-      if (activeTab === "profits") fetchProfitLogs();
+      if (activeTab === "profits") fetchFinanceStats();
     } catch (err) {
       alert(err.error || "حدث خطأ أثناء سحب الأرباح");
     }
