@@ -48,26 +48,27 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ════════════════════════════════════════
-   MAIN LAYOUT  —  block-based (sidebar is fixed, no flex needed)
+   MAIN LAYOUT  —  flex row, sidebar right, content left
 ════════════════════════════════════════ */
 .admin-app {
-  display: block;
+  display: flex;
+  flex-direction: row-reverse;   /* sidebar on RIGHT, content on LEFT */
   min-height: 100vh;
   width: 100%;
-  position: relative;
+  align-items: flex-start;
 }
 
 .sidebar {
   width: var(--sidebar-width);
+  flex-shrink: 0;               /* never shrink */
   background: rgba(255, 255, 255, 0.93);
   backdrop-filter: blur(16px);
   border-left: 1px solid var(--glass-border);
   padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
-  position: fixed;
+  position: sticky;              /* sticks while scrolling */
   top: 0;
-  right: 0;               /* always on the right — physical property */
   height: 100vh;
   overflow-y: auto;
   z-index: 100;
@@ -75,9 +76,8 @@ body {
 }
 
 .main-content {
-  display: block;
-  /* NO explicit width — block elements auto-shrink: width = 100vw - margin-right */
-  margin-right: var(--sidebar-width);   /* = viewport_width - sidebar_width */
+  flex: 1;                       /* takes ALL remaining width */
+  min-width: 0;                  /* prevents flex overflow */
   padding: var(--content-pad);
   min-height: 100vh;
   box-sizing: border-box;
@@ -467,10 +467,13 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 @media (max-width: 768px) {
   :root { --content-pad: 0.9rem; --card-radius: 12px; }
 
-  /* Sidebar: slide off to the right, slides back in */
+  /* Sidebar: switch to fixed on mobile so it can slide in/out */
   .sidebar {
+    position: fixed;
+    top: 0;
+    right: -270px;           /* off-screen to the right */
     width: 260px;
-    right: -270px;           /* physical: off-screen to the right */
+    height: 100vh;
     padding: 1.25rem 0.9rem;
     z-index: 200;
   }
@@ -480,11 +483,12 @@ h3 { font-size: 1.1rem; font-weight: 600; }
     box-shadow: -4px 0 30px rgba(0,0,0,0.35);
   }
 
-  /* Content: full width on mobile */
+  /* Content: full width on mobile (no sidebar in flex flow) */
   .main-content {
-    margin-right: 0 !important;   /* physical: remove right margin */
+    flex: 1;
+    width: 100%;
+    min-width: 0;
     padding: var(--content-pad);
-    width: 100% !important;
   }
 
 
